@@ -6,7 +6,7 @@ ls -1 --color=no *.flat |xargs -l -i echo "/s/fir/c/nobackup/baharpan/git/KMC/bi
 source kmercount.sh
 ls -1 --color=no *.flat |xargs -l -i echo "/s/fir/c/nobackup/baharpan/git/KMC/bin/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
 source kmercountsort.sh
-ls -1 --color=no *.flat |xargs -l -i echo "{}.kmc" > ecoli6_kmc2_list
+ls -1 --color=no *.flat |xargs -l -i echo "{}.kmc.sorted" > ecoli6_kmc2_list
 
 numactl --interleave=all /bin/time -v /s/fir/c/nobackup/baharpan/git/cosmo/cosmo-pack -k ecoli6_kmc2_list
 numactl --interleave=all /bin/time -v /s/fir/c/nobackup/baharpan/git/cosmo/pack-color ecoli6_kmc2_list.colors 6

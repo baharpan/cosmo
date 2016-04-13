@@ -8,8 +8,8 @@ CPP_FLAGS=-g -m64 -std=c++0x -W -Wall -Wextra -Wpointer-arith -Wcast-qual \
 DEP_PATH=/usr/local
 INC_PATH=$(DEP_PATH)/include
 LIB_PATH=$(DEP_PATH)/lib
-MM_PATH=/s/chopin/l/grad/muggli/local
-KMC_PATH=/s/chopin/l/grad/muggli/git/KMC
+MM_PATH=/s/chopin/k/grad/baharpan
+KMC_PATH=/s/fir/c/nobackup/baharpan/git/KMC
 
 DEP_FLAGS=-I$(HOME)/proot/include -isystem $(KMC_PATH) -isystem $(MM_PATH)/include -L$(MM_PATH)/lib -I$(INC_PATH)/ -L$(HOME)/proot/lib -L$(LIB_PATH)/ -lsdsl # -ldivsufsort -ldivsufsort64
 DEBUG_FLAGS=-g
