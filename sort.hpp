@@ -5,12 +5,12 @@
 // using table_b as the temporary table, and writing the new ptrs to
 // new_a and new_b. new_a will point to the final result, while
 // new_b will be the results of the second-last iteration.
-std::vector<color_bv> unusedbv; // created to shut up the compiler about missing default value
-std::vector<color_bv>::iterator unusedbv_end = unusedbv.end();
+std::vector<int> unusedbv; // created to shut up the compiler about missing default value
+std::vector<int>::iterator unusedbv_end = unusedbv.end();
 template <int base, typename T, typename F>
 void colex_partial_radix_sort(T * a, T * b, size_t num_records, uint32_t lo, uint32_t hi, T ** new_a, T ** new_b, F get_digit,
                               uint8_t * lengths_a = 0, uint8_t * lengths_b = 0, uint8_t ** new_lengths_a = 0, uint8_t ** new_lengths_b = 0,
-                              std::vector<color_bv>::iterator colors_a = unusedbv_end, std::vector<color_bv>::iterator colors_b = unusedbv_end , std::vector<color_bv>::iterator *new_colors_a = &unusedbv_end, std::vector<color_bv>::iterator *new_colors_b = &unusedbv_end) {
+                              std::vector<int>::iterator colors_a = unusedbv_end, std::vector<int>::iterator colors_b = unusedbv_end , std::vector<int>::iterator *new_colors_a = &unusedbv_end, std::vector<int>::iterator *new_colors_b = &unusedbv_end) {
     if (hi <= lo) return;
     assert(( lengths_a &&  lengths_b &&  new_lengths_a &&  new_lengths_b)
            || (!lengths_a && !lengths_b && !new_lengths_a && !new_lengths_b));

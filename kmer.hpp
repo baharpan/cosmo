@@ -231,6 +231,7 @@ void print_kmers(std::ostream & out, kmer_t * kmers, size_t num_kmers, uint32_t 
   }
 }
 
+
 // Longest common suffix
 template <typename kmer_t>
 size_t lcs(const kmer_t & a, const kmer_t & b, size_t k) {

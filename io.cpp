@@ -3,6 +3,8 @@
 #include <vector>
 #include <queue>
 #include <sstream>
+#include <utility>
+
 static inline uint64_t nibblet_reverse(const uint64_t &word)
 {
 
@@ -37,7 +39,7 @@ static inline uint64_t nibblet_reverse(const uint64_t &word)
 }
 
 
-int kmc_read_header(std::string db_fname, uint32_t &kmer_num_bits, uint32_t &k, uint64 &peak_kmers, uint32_t &num_colors, std::vector<CKMCFile *> &kmer_data_bases)
+int kmc_read_header(std::string db_fname, uint32_t &kmer_num_bits, uint32_t &k, uint64 &peak_kmers,  std::vector<CKMCFile *> &kmer_data_bases)
 {
     std::ifstream db_list(db_fname.c_str());
     std::string fname;
@@ -81,11 +83,10 @@ int kmc_read_header(std::string db_fname, uint32_t &kmer_num_bits, uint32_t &k, 
         }
     }
     assert(kmer_data_bases.size() > 0);
-    num_colors = kmer_data_bases.size();
+    //num_colors = kmer_data_bases.size();
     return 1;
         
 }
-
 int dsk_read_header(int handle, uint32_t * kmer_num_bits, uint32_t * k) {
   return read(handle, (char*)kmer_num_bits, sizeof(uint32_t)) != -1 &&
          read(handle, (char*)k, sizeof(uint32_t)) != -1;
@@ -329,14 +330,14 @@ static inline queue_entry pop_replace(mypq_type& queue, const std::vector<CKMCFi
     return popped_value;
 }
 
-size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint32_t num_colors, uint32_t k, std::vector<uint64_t>& kmers_output, std::vector<color_bv>  &kmer_colors, std::vector<CKMCFile *> &kmer_data_bases)
+size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits,  uint32_t &num_colors, uint32_t k, std::vector<uint64_t>& kmers_output, std::vector<int>  &kmer_colors, std::vector<CKMCFile *> &kmer_data_bases)
 {
     const mylessthan gt_comparitor(true);
     const mylessthan lt_comparitor(false);
 
     mypq_type queue(gt_comparitor);
 
-    color_bv color = 0;
+    int color = 0;
     
     // initialize the queue with a file identifier (as a proxy for the input sequence itself) and the value at the head of the file for peeking
     for (unsigned i = 0; i < kmer_data_bases.size(); ++i) {
@@ -347,7 +348,7 @@ size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint
 
     // pop the first element into 'current' to initialize our state (and init any other state here such as this one's color)
     queue_entry current = pop_replace(queue, kmer_data_bases, k);
-    color.set(current.first); // FIXME: make sure not using << operator elsewhere!
+    color=color+1; // FIXME: make sure not using << operator elsewhere!
     //std::cout << "current = " << print_entry(current) << " = queue.pop()" << std::endl;    
 
     //
@@ -357,8 +358,8 @@ size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint
         // std::string s2 = const_cast<CKmerAPI*>(&(current.second))->to_string();
         // if (s1 == s2) { // if this is the same kmer we've seen before
         if (*const_cast<CKmerAPI*>(&(queue.top().second)) == *const_cast<CKmerAPI*>(&(current.second))) { // if this is the same kmer we've seen before
-            queue_entry additional_instance = pop_replace(queue, kmer_data_bases, k);
-            color.set(additional_instance.first);
+	  //queue_entry additional_instance = pop_replace(queue, kmer_data_bases, k);
+	  //color.set(additional_instance.first);
             //std::cout << "additional_instance = " << print_entry(additional_instance) << " = queue.pop()" << std::endl;
         } else { // if the top of the queue contains a new instance
 
@@ -373,7 +374,7 @@ size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint
             //std::cout << const_cast<CKmerAPI*>(&(current.second))->to_string() << " : " << color << std::endl;
             
             kmer_colors.push_back(color);
-            color.reset();
+            //color.reset();
 
             for (unsigned int block=0; block < kmer.size(); ++block) {
                 kmers_output.push_back(kmer[block]); // FIXME: check if kmer_output is big endian or little endian
@@ -390,18 +391,18 @@ size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint
             current = pop_replace(queue, kmer_data_bases, k);
             //std::cout << "current = " << print_entry(current) << " = queue.pop()" << std::endl;
 
-            color.set(current.first); // FIXME: make sure not using << operator elsewhere!
+            color=color+1; // FIXME: make sure not using << operator elsewhere!
         }
     }
 
     // and finally emit our current state    
-    std::vector<unsigned long long /*uint64*/> kmer;            
+    std::vector<unsigned long long /*uint64*/> kmer;
+    
     current.second.to_long(kmer);
-        
-
-
+  
     kmer_colors.push_back(color);
-    color.reset();
+    
+
         
     for (unsigned int block=0; block < kmer.size(); ++block) {
         kmers_output.push_back(kmer[block]); // FIXME: check if kmer_output is big endian or little endian        
@@ -414,6 +415,7 @@ size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint
             
     }
     num_merged_kmers++;
+   
             
     
 
@@ -449,6 +451,7 @@ size_t kmc_read_kmers(const int handle, const uint32_t kmer_num_bits, const uint
         kmer_data_base->Close();
         delete kmer_data_base;
     }
+    num_colors=num_merged_kmers;
     return num_merged_kmers;
     
 }
