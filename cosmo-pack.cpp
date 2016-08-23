@@ -476,9 +476,9 @@ int main(int argc, char * argv[])
 
 		ofstream myfile;
 
-	myfile.open ("/s/fir/c/nobackup/baharpan/git/cosmo/Ecoli-K12/permutation.payload");
-	for(vector<int>::iterator it=permutation.begin();it!=permutation.end();++it)
-	 myfile<<*it<<" ";
+	myfile.open ("/s/fir/c/nobackup/baharpan/git/cosmo/Ecoli-Not/permutation.payload");
+	for(vector<int>::iterator it=permutation.begin();it!=permutation.end();++it){
+	  myfile<<*it<<" ";}
 	 myfile.close();
     }
     
