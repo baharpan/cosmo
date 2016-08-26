@@ -23,24 +23,6 @@ using namespace std;
 using namespace sdsl;
 std::vector<string> permutation;
 #include <sys/timeb.h>
-void readFile()
-{
-    ifstream file;
-    file.open ("/s/fir/c/nobackup/baharpan/git/cosmo/Ecoli-Not/permutation.payload");
-    std::string word;
-    char x ;
-    word.clear();
-    while (file>>word ){
-        x = file.get();
-        while ( x != ' ' ){
-            word = word + x;
-            x = file.get();
-        }
-	permutation.push_back(word);
-	
-	//cout<<word<<endl;
-    }
-}
 
 int getMilliCount(){
   timeb tb;
@@ -57,8 +39,7 @@ int getMilliSpan(int nTimeStart){
   return nSpan;
 }
 
-string extension = ".dbg";
-
+string extension = ".contigs";
 
 
 void parse_arguments(int argc, char **argv, parameters_t & params)
@@ -66,8 +47,10 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
   TCLAP::CmdLine cmd("Cosmo Copyright (c) Alex Bowe (alexbowe.com) 2014", ' ', VERSION);
   TCLAP::UnlabeledValueArg<std::string> input_filename_arg("input",
             ".packed edge file (output from pack-edges).", true, "", "input_file", cmd);
-  // TCLAP::UnlabeledValueArg<std::string> color_filename_arg("color",
-  //  ".color file (output from pack-edges).", true, "", "color_file", cmd);
+   TCLAP::UnlabeledValueArg<std::string> color_filename_arg("color",
+    ".color file (output from cosmo-pack.cpp).", true, "", "color_file", cmd);
+  //  TCLAP::UnlabeledValueArg<std::string> positions_filename_arg("positions",
+   // ".positions file (input by user)", true, "", "positions_file", cmd);
   string output_short_form = "output_prefix";
   TCLAP::ValueArg<std::string> output_prefix_arg("o", "output_prefix",
             "Output prefix. Graph will be written to [" + output_short_form + "]" + extension + ". " +
@@ -81,19 +64,40 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
   cmd.parse( argc, argv );
 
   params.input_filename  = input_filename_arg.getValue();
-  // params.color_filename  = color_filename_arg.getValue();
+  params.color_filename  = color_filename_arg.getValue();
   params.output_prefix   = output_prefix_arg.getValue();
   // params.color_mask1     = color_mask1_arg.getValue();
   // params.color_mask2     = color_mask2_arg.getValue();
 }
 
+
 static char base[] = {'?','A','C','G','T'};
+
+void readFile(ifstream &color)
+{
+    std::string word;
+    char x ;
+    word.clear();
+    while (color>>word ){
+        x = color.get();
+        while ( x != ' ' ){
+            word = word + x;
+            x = color.get();
+        }
+    permutation.push_back(word);
+
+    //cout<<word<<endl;
+        }
+color.close();
+cerr << "num_payloads(): " << permutation.size()<<" must be equal to the number of edges"<< endl;
+    }
+
 std::string ReadNthLine(int N){
-   std::ifstream in("/s/fir/c/nobackup/baharpan/Ecoli/intermediate/cosmo-input-positions-nokmer");
+   std::ifstream positions("/s/fir/c/nobackup/baharpan/Ecoli/intermediate/cosmo-input-positions-nokmer");
    std::string s;
    for(int i = 1; i <= N; ++i)
-       std::getline(in,s);
-   std::getline(in,s);
+       std::getline(positions,s);
+   std::getline(positions,s);
    return s; 
    }
 
@@ -133,11 +137,9 @@ vector<vector<string> >::iterator tokenss_iterator;
 vector<vector<string> >::iterator tokenss_iterator_next;
 vector<string>::iterator tokens_iterator;
  
-void find_contigs(debruijn_graph<> dbg)
+void find_contigs(debruijn_graph<> dbg, ofstream &output)
 {
-  readFile();
-cout<<"permutation size is"<<permutation.size()<<endl;   
-std::vector <vector<string>>tokenss(dbg.num_edges());
+//std::vector <vector<string>>tokenss(dbg.num_edges());
 /*cerr<<"Constructing The Vector of position vectors"<<endl;
     for  (size_t pay=0; pay<permutation.size(); ++pay){
     string poss=ReadNthLine(pay);
@@ -148,16 +150,16 @@ std::vector <vector<string>>tokenss(dbg.num_edges());
     tokenss.insert(tokenss.begin()+pay,tokens);}
 cerr<<"End of Constructing"<<endl;*/
 size_t  payload;
+size_t sum=0;
+size_t average=0;
   std::vector<int> visited (dbg.num_nodes());
   cout << "Starting to look for contigs\n";
-  ofstream myfile;
   
-   myfile.open ("/s/fir/c/nobackup/baharpan/git/cosmo/Ecoli-narrow/contigs-new.txt");
- for (size_t i =0; i <dbg.num_nodes() ; i++) {
+ for (size_t i =1; i <=dbg.num_nodes() ; i++) {
    ssize_t start = i; // place to store start of branch kmer
    std::string start_label(dbg.node_label(start));
    payload=stoi(permutation[dbg._node_to_edge(i)]);	
-   cout << i << ":" << dbg.node_label(i)<<"and payload"<<payload<<endl;
+   //cout << i << ":" << dbg.node_label(i)<<"and payload"<<payload<<endl;
 
    string poss=ReadNthLine(payload);
    istringstream iss(poss);
@@ -173,7 +175,6 @@ size_t  payload;
      //cout<<"Positions are"<<*tokens_iterator<<" ";
     //	cerr<<endl;
 	// }
-    	cout<<"outdegree is"<<dbg.outdegree(i)<<endl;
      	if (visited[i]!=1){
 
 
@@ -228,47 +229,35 @@ size_t  payload;
 			}
                     pos = dbg._edge_to_node(next_edge);}
 		    //cerr <<"The"<<x<<"th contig:"<<contig[x]<<endl;}
-		//	if (payload!= -1){
-	
-	  
-	
-				  
-	  //	}
-		
 	}
 	//	cerr <<"contig:"<<dbg.node_label(start)<<contig<<"with length"<<contig.size()+dbg.node_label(start).size()<<endl;
-	myfile<<">"<<poss<<" "<<"length:"<<contig.size()+dbg.node_label(start).size()<<endl;
-	myfile<<dbg.node_label(start)<<contig<<endl; 
-        
-	//}
- }
-	//	myfile.close();
+	sum=sum+contig.size()+dbg.node_label(start).size();
+    average= sum/i;
+    
+    output<<">"<<poss<<" "<<"length:"<<contig.size()+dbg.node_label(start).size()<<" "<<"average:"<<average<<endl;
+	output<<dbg.node_label(start)<<contig<<endl;        }
  }
 }
 
 int main(int argc, char* argv[]) {
   parameters_t p;
   parse_arguments(argc, argv, p);
-  //std::map<string,int> pairs;
-  //int payload;
+  const char * file_name = p.color_filename.c_str();
+  string outfilename = (p.output_prefix == "")? p.input_filename : p.output_prefix;  
+  ifstream color(file_name, ios::in);
   ifstream input(p.input_filename, ios::in|ios::binary|ios::ate);
-  // Can add this to save a couple seconds off traversal - not really worth it.
-  //vector<size_t> minus_positions;
+//  ifstream positions (p.positions_filename, ios::in);
+  ofstream output;
+  output.open(outfilename + extension, ios::out);
   debruijn_graph<> dbg = debruijn_graph<>::load_from_packed_edges(input, "$ACGT"/*, &minus_positions*/);
   input.close();		
- 
-	 cerr << "k             : " << dbg.k << endl;
+  cerr << "k             : " << dbg.k << endl;
   cerr << "num_nodes()   : " << dbg.num_nodes() << endl;
   cerr << "num_edges()   : " << dbg.num_edges() << endl;
-  cerr << "colors        : " << 74319898 << endl; 
   cerr << "Total size    : " << size_in_mega_bytes(dbg) << " MB" << endl;
   cerr << "Bits per edge : " << bits_per_element(dbg) << " Bits" << endl;
-  // cerr << "Color size    : " << size_in_mega_bytes(colors) << " MB" << endl;
-  //cerr<<"Permutation size : "<<permutation.size()<<endl;
-  //dump_nodes(dbg, colors);
- // dump_edges(dbg);
-  // uint64_t mask1 = (p.color_mask1.length() > 0) ? atoi(p.color_mask1.c_str()) : -1;
-   // uint64_t mask2 = (p.color_mask2.length() > 0) ? atoi(p.color_mask2.c_str()) : -1;
-	 find_contigs(dbg);
+  cerr << "colors        : " << 74319898 << endl; 
+  readFile(color);
+  find_contigs(dbg,output);
 }
 

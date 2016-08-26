@@ -196,7 +196,9 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
   */
   TCLAP::UnlabeledValueArg<std::string> input_filename_arg("input",
             "Input file. Currently only supports DSK's binary format (for k<=64).", true, "", "input_file", cmd);
-  string output_short_form = "output_prefix";
+//TCLAP::UnlabeledValueArg<std::string> input_filename_arg("pay",
+  //          "Input file. Currently only supports DSK's binary format (for k<=64).", true, "", "pay_file", cmd) 
+ string output_short_form = "output_prefix";
   TCLAP::ValueArg<std::string> output_prefix_arg("o", "output_prefix",
             "Output prefix. Results will be written to [" + output_short_form + "]" + extension + ". " +
             "Default prefix: basename(input_file).", false, "", output_short_form, cmd);
@@ -209,6 +211,7 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
   cmd.parse( argc, argv );
   //params.ascii         = ascii_arg.getValue();
   params.input_filename  = input_filename_arg.getValue();
+ // params.pay_filename  = pay_filename_arg.getValue();  
   params.output_prefix   = output_prefix_arg.getValue();
   params.kmc          = kmc_arg.getValue();
   params.cortex = cortex_arg.getValue();
@@ -420,7 +423,7 @@ int main(int argc, char * argv[])
 #endif
     PackedEdgeOutputer out(ofs);
     ofstream cfs;
-    cfs.open(outfilename + ".colors", ios::out | ios::binary);
+    cfs.open(outfilename + ".color", ios::out);
 
 
     /* color_bv ones;
@@ -474,12 +477,14 @@ int main(int argc, char * argv[])
                 }, !( params.kmc), kmer_colors, pairs);
 	cout<<"The size of permutation vector is"<<permutation.size()<<endl;
 
-		ofstream myfile;
-
-	myfile.open ("/s/fir/c/nobackup/baharpan/git/cosmo/Ecoli-Not/permutation.payload");
+		
+       // ofstream payload;
+    //payload.open(outfilename + ".color", ios::out);
+	
 	for(vector<int>::iterator it=permutation.begin();it!=permutation.end();++it){
-	  myfile<<*it<<" ";}
-	 myfile.close();
+	  
+       cfs<<*it<<" ";}
+	 
     }
     
     else if (kmer_num_bits == 128) {
