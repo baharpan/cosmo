@@ -59,6 +59,10 @@ void convert(kmer_t * kmers, size_t num_kmers, const uint32_t k, Visitor visit, 
      pairs.insert(std::make_pair( kmer_to_string(kmers[i], k,((dummy_lengths)? dummy_lengths[i]:k)),index++));
     }
    
+    ofstream pair ("/s/fir/c/nobackup/baharpan/git/cosmo/yeast");
+    for (it=pairs.begin(); it!= pairs.end(); ++it){
+    pair<<it->first<<endl;
+    }
      
    //cout<<"The size of pairs is"<<pairs.size();
   // Append reverse complements
@@ -457,7 +461,8 @@ int main(int argc, char * argv[])
 		    // cerr << kmer_to_string(x, k, this_k)<<pairs.find(kmer_to_string(x, k, this_k))->second<< "\n";}
 		   
 		   else{
-		     permutation.push_back (-1);}
+		     permutation.push_back (-1);
+           }
 		  
                         //cfs.write((char *)&colors[index++], sizeof(uint64_t));
 		       //  }

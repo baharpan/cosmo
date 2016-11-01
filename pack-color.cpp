@@ -88,7 +88,7 @@ int main(int argc, char * argv[]) {
   colorfile.seekg(0, colorfile.beg);
 
   size_t num_color = params.num_colors;
-  size_t num_edges = end / sizeof(color_bv);
+  size_t num_edges = 12238;
   bit_vector b = bit_vector(num_edges*num_color, 0);
   size_t cnt0 = 0;
   size_t cnt1 = 0;
@@ -140,7 +140,6 @@ int main(int argc, char * argv[]) {
   }
   cout << "SD Access Time: " << getMilliSpan(sysTime) << endl;
   cout << "SD Size (MB): " << size_in_mega_bytes(sdb) << endl;
-
   sysTime = getMilliCount();
   hyb_vector<> hyb(b);
   cout << "Hyb Creation Time: " << getMilliSpan(sysTime) << endl;

@@ -16,8 +16,7 @@ void test_symmetry(debruijn_graph<> dbg);
 void dump_nodes(debruijn_graph<> dbg, uint64_t * colors);
 void dump_edges(debruijn_graph<> dbg, uint64_t * colors);
 void find_contigs(debruijn_graph<> dbg);
-
-
+void find_cycles(debruijn_graph<> dbg);
 
 
 
