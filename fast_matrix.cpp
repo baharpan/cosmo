@@ -6,7 +6,6 @@
 #include <string>
 #include <libgen.h> // basename
 #include <boost/algorithm/string.hpp>
-
 #include "sdsl/sd_vector.hpp"
 #include <sdsl/bit_vectors.hpp>
 #include <sdsl/wavelet_trees.hpp>
@@ -17,30 +16,24 @@
 #include <future>
 using namespace std;
 using namespace sdsl;
-
 #include <sys/timeb.h>
-
 #include <utility>
 #include <ctime>
-
 // TCLAP
  #include "tclap/CmdLine.h"
-//
-  #include <cstdio>
-//
-   #include <cstdlib>
-   #include "kmer.hpp"
-
-
+#include <cstdio>
+#include <cstdlib>
+#include "kmer.hpp"
 #include <iostream>
 using std::cout;
 using std::endl;
-
 #include <fstream>
 using std::ifstream;
-
 #include <cstring>
 unsigned long long global_t;
+
+
+
 int getMilliCount(){
     timeb tb;
     ftime(&tb);
