@@ -3,6 +3,7 @@ LueVari is a reference free resistom SNP caller, based on the read-colored de Br
 ### Prerequisites
 
 VARI and its all Prerequisites
+
 Bowtie (https://github.com/BenLangmead/bowtie)
 
 ### Installing
