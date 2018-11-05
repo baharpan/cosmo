@@ -34,13 +34,7 @@ static char base[] = {'?','A','C','G','T'};
 
 class resistome {
 
-
-
 public:
-
-
-
-
 
   vector<size_t> file_size_function(){
   ifstream f ("subreads_info");
