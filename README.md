@@ -1,5 +1,5 @@
 # Recoloring  the  Colored  de  Bruijn  Graph
- A heuristic algorithm to recolor a CDBG, with smaller number of colors, while the original colors are distinguishable. 
+ A heuristic algorithm to recolor a colored DBG, with orders of magnitude less number of colors, while the original colors are distinguishable. We note that colors can be either samples or reads.
  ### Prerequisites
 
 VARI and its all Prerequisites
@@ -25,6 +25,9 @@ source kmercount.sh
 ls -1 --color=no *.fasta |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
 source kmercountsort.sh
 ls -1 --color=no *.fasta |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
+
+#make a list of input files
+ls *.fasta > list.txt
 
 #construct the read-colored matrix with reduced number of colors:
 reduce_color
