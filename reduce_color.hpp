@@ -27,7 +27,6 @@ using namespace sdsl;
 #include "tclap/CmdLine.h"
 
 #include <cstdio>
-
 #include <cstdlib>
 #include "kmer.hpp"
 static char base[] = {'?','A','C','G','T'};
