@@ -25,6 +25,8 @@ source kmercount.sh
 ls -1 --color=no *.fasta |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
 source kmercountsort.sh
 ls -1 --color=no *.fasta |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
+#Construct the de Bruijn graph
+numactl --interleave=all  /ufrc/boucher/baharpan/cosmo/cosmo-pack -k filtered_kmc2_list
 
 #make a list of input files
 ls *.fasta > list.txt
