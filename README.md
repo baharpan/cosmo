@@ -36,6 +36,8 @@ reduce_color
 
 
 ```
+##Paper
+https://link.springer.com/chapter/10.1007/978-3-030-00479-8_1
 ## Authors
 Bahar Alipanahi, Alan Kuhnle and Christina Boucher
 
