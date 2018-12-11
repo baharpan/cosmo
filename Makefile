@@ -53,7 +53,7 @@ endif
 BUILD_REQS=debruijn_graph.hpp io.hpp io.o debug.h 
 COLOR_REQS=colored_debruijn_graph.hpp io.hpp io.o debug.h 
 ASSEM_REQS=debruijn_graph.hpp algorithm.hpp utility.hpp kmer.hpp uint128_t.hpp
-PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp bubbles.hpp reduce_color.hpp
+PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp  reduce_color.hpp
 BINARIES= reduce_color cosmo-pack 
 
 KMC_OBJS=3rd_party_src/KMC/kmc_api/kmc_file.o 3rd_party_src/KMC/kmc_api/kmer_api.o 3rd_party_src/KMC/kmc_api/mmer.o
