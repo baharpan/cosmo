@@ -67,12 +67,10 @@ io.o: io.hpp io.cpp debug.h dummies.hpp kmer.hpp
 		$(CXX) $(CPP_FLAGS) -c io.cpp  $(DEP_FLAGS) 
 
 # TODO: Roll these all into one... "cosmo"
-#cosmo-pack: cosmo-pack.cpp $(PACK_REQS)
-#		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
+cosmo-pack: cosmo-pack.cpp $(PACK_REQS)
+		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
 
 #bubbles: bubbles.cpp $(PACK_REQS)						
-#	$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS)
-#bubbles_2: bubbles_2.cpp $(PACK_REQS)
 #	$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS)
 #bv2repair: bv2repair.cpp $(PACK_REQS)
 #	$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS)
