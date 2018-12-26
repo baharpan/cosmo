@@ -13,7 +13,7 @@ git checkout Recoloring
 Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team/cosmo/tree/VARI#building-notes)
 ```
 # Input
-Either .fasta or .fastq files.
+fastq files.
 # Output
 Color matrix constructed with orders of magnitude less number of colors and compressed using Elias-Fano coding 
 ## Running 
