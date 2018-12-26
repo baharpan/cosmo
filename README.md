@@ -20,19 +20,20 @@ Color matrix constructed with orders of magnitude less number of colors and comp
 ```
 #count the k-mers
 mkdir -p kmc_temp
-ls -1 --color=no *.fasta |xargs -l -i echo "~/kmc -b -fq -k32 -ci0 -cs250 {} {}.kmc kmc_temp" >kmercount.sh
+ls -1 --color=no *.fastq |xargs -l -i echo "~/kmc -b -fq -k32 -ci0 -cs250 {} {}.kmc kmc_temp" >kmercount.sh
 source kmercount.sh
-ls -1 --color=no *.fasta |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
+ls -1 --color=no *.fastq |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
 source kmercountsort.sh
-ls -1 --color=no *.fasta |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
-#Construct the de Bruijn graph
-cosmo-pack -k filtered_kmc2_list
+ls -1 --color=no *.fastq |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
+
+#construct the de Bruijn graph
+./cosmo-pack -k filtered_kmc2_list
 
 #make a list of input files
-ls *.fasta > list.txt
+ls *.fastq > list.txt
 
 #construct the read-colored matrix with reduced number of colors:
-reduce_color
+./reduce_color
 
 
 ```
