@@ -4,12 +4,11 @@ CPP_FLAGS=-g -m64 -std=c++0x -W -Wall -Wextra -Wpointer-arith -Wcast-qual \
 					  -Wwrite-strings \
 #					-Wbool-conversions -Wshift-overflow -Wliteral-conversion \
 					-Werror -W -fno-strict-aliasing
-BOOST_PATH=/ufrc/boucher/baharpan/VARI/3rd_party_inst/boost
-DEP_PATH=3rd_party_inst
+BOOST_PATH=3rd_party_inst/boost
+DEP_PATH=../../cosmo/3rd_party_inst
 INC_PATH=-isystem $(DEP_PATH)/include -isystem $(BOOST_PATH)/include
 LIB_PATH=-L$(DEP_PATH)/lib -L./ -L$(BOOST_PATH)/lib
-MM_PATH=/s/chopin/k/grad/baharpan
-KMC_PATH=3rd_party_src/KMC
+KMC_PATH=../../cosmo/3rd_party_src/KMC
 BOOST_FLAGS= -lboost_system -lboost_filesystem
 
 DEP_FLAGS=$(INC_PATH) $(LIB_PATH) $(BOOST_FLAGS) -isystem $(KMC_PATH)  -lsdsl -fopenmp
@@ -56,7 +55,7 @@ ASSEM_REQS=debruijn_graph.hpp algorithm.hpp utility.hpp kmer.hpp uint128_t.hpp
 PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp  reduce_color.hpp
 BINARIES= reduce_color cosmo-pack 
 
-KMC_OBJS=3rd_party_src/KMC/kmc_api/kmc_file.o 3rd_party_src/KMC/kmc_api/kmer_api.o 3rd_party_src/KMC/kmc_api/mmer.o
+KMC_OBJS= ../../cosmo/3rd_party_src/KMC/kmc_api/kmc_file.o ../../cosmo/3rd_party_src/KMC/kmc_api/kmer_api.o ../../cosmo/3rd_party_src/KMC/kmc_api/mmer.o
 
 default: all
 
