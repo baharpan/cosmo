@@ -15,7 +15,7 @@ git checkout LueVari
 Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team/cosmo/tree/VARI#building-notes)
 ```
 # Input
-Either .fasta or .fastq files.
+Either .fasta or .fastq files. with integer ids
 # Output
 .fasta file of gene-sized sequences spanning the SNPs, with specifying the SNP index and varying Nucleotides.  
 ## Running LueVari
