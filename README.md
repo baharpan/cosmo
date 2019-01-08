@@ -29,20 +29,20 @@ source kmercountsort.sh
 ls -1 --color=no *.fasta |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
 
 #build the succinct de Bruijn graph
-cosmo-pack -k filtered_kmc2_list 
+./cosmo-pack -k filtered_kmc2_list 
 
 #align the k-mers to reads
-bowtie-build  <reads.fasta> flat_bowtie
-bowtie -f  -a -v0 flat_bowtie <kmers.fasta> outputFile
+./bowtie-build  <reads.fasta> flat_bowtie
+./bowtie -f  -a -v0 flat_bowtie <kmers.fasta> outputFile
 
 #prepare the kmers and the reads to fill the read-colored matrix
-matrix_prepare.py outputFile kmers.txt
+python matrix_prepare.py outputFile kmers.txt
 
 #construct the read-colored matrix
-fast_matrix
+./fast_matrix
 
 #SNP calling
-bubbles
+./bubbles
 
 ```
 ## Authors
