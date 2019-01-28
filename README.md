@@ -1,3 +1,4 @@
+Note: This repository will be updated soon.
 # Recoloring  the  Colored  de  Bruijn  Graph
  A heuristic algorithm to recolor a colored DBG, with orders of magnitude less number of colors, while the original colors are distinguishable. Colors can be either samples or reads.
  ### Prerequisites
