@@ -15,7 +15,7 @@ Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team
 # Input
 fastq files.
 # Output
-Color matrix constructed with orders of magnitude less number of colors and compressed using Elias-Fano coding 
+Color matrix constructed with orders of magnitude less number of colors and compressed using Elias-Fano coding. And the file labels.txt which is a list of colors with same labels. 
 ## Running 
 ```
 #count the k-mers
