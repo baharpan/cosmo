@@ -18,7 +18,7 @@ fastq files.
 Color matrix constructed with orders of magnitude less number of colors and compressed using Elias-Fano coding. And the file labels.txt which is a list of colors with same labels. 
 ## Running 
 ```
-#count the k-mers
+#count the k-mers (-ci is a threshold for filtering weak kmers)
 mkdir -p kmc_temp
 ./kmc -b -ci0 -fq -k32 -cs250 <fastq file> <output.kmc> kmc_temp
 ./kmc_tools sort <output.kmc> <output.kmc.sorted>
