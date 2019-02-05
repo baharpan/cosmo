@@ -80,16 +80,20 @@ public:
     }
 
 
-    void build (vector<string> found_kmers_per_read){
+    void build (vector<string> found_kmers_per_read, size_t read){
       int color = which_color(found_kmers_per_read);
       if (color < num_color ){
         for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it)
           build_backup.push_back(pairs[*it] + color * pairs.size());
+          color_map[color].push_back(read);
             }
       else{
         num_color++;
         for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it)
-          build_backup.push_back(pairs[*it] + color * pairs.size());//}
+          build_backup.push_back(pairs[*it] + color * pairs.size());
+        vector<size_t> new_colomn;
+        new_colomn.push_back(read);
+        color_map.insert(make_pair(color,new_colomn));
           }
       }
 
@@ -119,10 +123,10 @@ public:
       else if (mode == true) {
         if (count % 10000 == 0) cout<<"Processing read number "<< count <<
         " ("<<(double)count * 100/ num_reads<<" % is processed)\n";
-        count++;
         read += s;
         vector<string> found_kmers_per_read = kmer_counter_read(32, read);
-        build (found_kmers_per_read);
+        build (found_kmers_per_read , count);
+        count++;
         }
     	}
     }
@@ -145,7 +149,15 @@ public:
       cerr<<"Writing the matrix to output_matrix_reduced"<<endl;
       string outfilename = "output_matrix_reduced";
       sdsl::store_to_file(b, outfilename);
-
+      ofstream labels;
+      labels.open("labels.txt");
+      labels<<"Labels\tColors\n";
+      for (map<size_t,vector<size_t>>::iterator it = color_map.begin(); it != color_map.end(); ++it){
+        labels<<it->first<<"\t";
+        for (size_t j = 0; j < it->second.size(); ++j)
+          labels<<it->second[j]<<" ";
+        labels<<endl;
+      }
       }
 
 };
