@@ -23,8 +23,10 @@ mkdir -p kmc_temp
 ./kmc -b -ci0 -fq -k32 -cs250 <fastq file> <output.kmc> kmc_temp
 ./kmc_tools sort <output.kmc> <output.kmc.sorted>
 
+echo "list.kmc.sorted" > list
+
 #construct the de Bruijn graph
-./cosmo-pack -k <output.kmc.sorted>
+./cosmo-pack -k list
 
 #construct the read-colored matrix with reduced number of colors:
 ./reduce_color <fastq file> <number of reads>
