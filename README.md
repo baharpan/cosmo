@@ -30,6 +30,7 @@ mkdir -p kmc_temp
 ./reduce_color <fastq file> <number of reads>
 
 
+
 ```
 ## Paper
 https://link.springer.com/chapter/10.1007/978-3-030-00479-8_1
