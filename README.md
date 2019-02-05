@@ -23,7 +23,7 @@ mkdir -p kmc_temp
 ./kmc -b -ci0 -fq -k32 -cs250 <fastq file> <output.kmc> kmc_temp
 ./kmc_tools sort <output.kmc> <output.kmc.sorted>
 
-echo "list.kmc.sorted" > list
+echo "output.kmc.sorted" > list
 
 #construct the de Bruijn graph
 ./cosmo-pack -k list
