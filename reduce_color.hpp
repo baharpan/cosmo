@@ -72,10 +72,8 @@ public:
       for (size_t i = 0; i < subreadit.size(); ++i){
         if (online_kmers[pairs[subreadit[i]]] > max )
           max = online_kmers[pairs[subreadit[i]]];
+          online_kmers[pairs[subreadit[i]]] += 1;
     }
-      for (size_t i = 0; i < subreadit.size(); ++i){
-        online_kmers[pairs[subreadit[i]]] += 1;
-      }
       return max+1;
     }
 
