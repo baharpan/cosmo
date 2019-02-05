@@ -1,6 +1,5 @@
-Note: This repository will be updated soon.
 # Recoloring  the  Colored  de  Bruijn  Graph
- A heuristic algorithm to recolor a colored DBG, with orders of magnitude less number of colors, while the original colors are distinguishable. Colors can be either samples or reads.
+ A heuristic algorithm to recolor a colored DBG, with orders of magnitude less number of colors. In this project colors are the sequencing reads.
  ### Prerequisites
 
 VARI and its all Prerequisites
@@ -21,20 +20,17 @@ Color matrix constructed with orders of magnitude less number of colors and comp
 ```
 #count the k-mers
 mkdir -p kmc_temp
-ls -1 --color=no *.fastq |xargs -l -i echo "~/kmc -b -fq -k32 -ci12 -cs250 {} {}.kmc kmc_temp" >kmercount.sh
+ls -1 --color=no *.fastq |xargs -l -i echo "./kmc -b -fq -k32 -ci12 -cs250 {} {}.kmc kmc_temp" >kmercount.sh
 source kmercount.sh
-ls -1 --color=no *.fastq |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
+ls -1 --color=no *.fastq |xargs -l -i echo "./kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
 source kmercountsort.sh
 ls -1 --color=no *.fastq |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
 
 #construct the de Bruijn graph
 ./cosmo-pack -k filtered_kmc2_list
 
-#make a list of input files
-ls *.fastq > list.txt
-
 #construct the read-colored matrix with reduced number of colors:
-./reduce_color
+./reduce_color <fastq file> <number of reads>
 
 
 ```
