@@ -29,6 +29,10 @@ mkdir -p kmc_temp
 #construct the read-colored matrix with reduced number of colors:
 ./reduce_color <fastq file> <number of reads>
 
+#example: (please check the paths before running)
+cd test
+bash run.sh
+
 
 
 ```
