@@ -19,15 +19,15 @@ class reduction {
 
 public:
   int num_color = 0;
-  map<size_t,std::vector<size_t>> color_map;
+  map<size_t, vector<size_t>> color_map;
   vector<size_t> build_backup;
 
 
 
-  std::map<string,size_t> index_maker(){
+  map<string,size_t> index_maker(){
     cerr<<"Making the pair map"<<endl;
     cerr<<"================================================="<<endl;
-    ifstream f ("pair" , std::ifstream::in);
+    ifstream f ("pair" , ifstream::in);
     map<string,size_t> pairs;
     string s;
     size_t index = 0;
@@ -39,7 +39,7 @@ public:
         pairs.insert(pair<string,size_t>(ss,index));
         index++;
       }
-      map<string,size_t>::iterator it = pairs.begin();
+      f.close();
       return pairs;
     }
 
@@ -67,7 +67,7 @@ public:
     }
 
 
-    int which_color ( std::vector<string> &subreadit){
+    int which_color ( vector<string> &subreadit){
       int max = -1;
       for (size_t i = 0; i < subreadit.size(); ++i){
         if (online_kmers[pairs[subreadit[i]]] > max )
@@ -104,7 +104,7 @@ public:
       string s;
 
       if (!getline(f, s) || !(s[0] == '>'||s[0] == '@')) {
-          cerr << "Make sure that the input is fastq file" << std::endl;
+          cerr << "Make sure that the input is fastq file" << endl;
           exit(EXIT_FAILURE);
         }
     bool mode = true;
@@ -158,6 +158,7 @@ public:
           labels<<it->second[j]<<" ";
         labels<<endl;
       }
+      labels.close();
       }
 
 };

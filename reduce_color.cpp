@@ -24,10 +24,12 @@ int main(int argc, char* argv[]){
          cerr << "Error: More arguments needed" << endl;
          return -1;
      }
+
   ifstream fastqfile(argv[1]);
   int num_reads = stoi(argv[2]);
   reduction re;
   re.build_recolored_matrix (fastqfile , num_reads);
+  fastqfile.close();
   cerr<<"Number of unique kmers:  "<<re.pairs.size()<<endl;
   cerr<<"Number of colors before reduction:  "<<num_reads <<endl;
   cerr<<"Number of colors after reduction:  "<<re.num_color <<endl;
