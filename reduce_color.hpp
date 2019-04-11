@@ -55,6 +55,7 @@ public:
       string kmer;
       vector<string> found_kmers_per_read;
       size_t pos = 0;
+      if (k > read.size()) cout<<"ERROR: k should be smaller than read length"<<endl;
       while(pos != read.size()-k+1){
         kmer = read.substr(pos,k);
         map<string,size_t>::iterator find = pairs.find(kmer);
