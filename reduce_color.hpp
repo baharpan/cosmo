@@ -50,7 +50,7 @@ public:
 
 
 
-    vector<string> kmer_counter_read(size_t k, string read)
+    vector<string> kmer_counter_read(int k, string read)
     {
       string kmer;
       vector<string> found_kmers_per_read;
@@ -96,7 +96,7 @@ public:
       }
 
 
-    void parser(ifstream& f , int num_reads)
+    void parser(int k, ifstream& f , int num_reads)
     {
       size_t count = 0;
       string s;
@@ -122,7 +122,7 @@ public:
         if (count % 10000 == 0) cout<<"Processing read number "<< count <<
         " ("<<(double)count * 100/ num_reads<<" % is processed)\n";
         read += s;
-        vector<string> found_kmers_per_read = kmer_counter_read(32, read);
+        vector<string> found_kmers_per_read = kmer_counter_read(k, read);
         build (found_kmers_per_read , count);
         count++;
         }
@@ -130,8 +130,8 @@ public:
     }
 
 
-    void build_recolored_matrix (ifstream& f , int num_reads){
-      parser(f, num_reads);
+    void build_recolored_matrix (int k, ifstream& f , int num_reads){
+      parser(k, f, num_reads);
       size_t n = (num_color ) * pairs.size();
       size_t m = build_backup.size();
       cerr<<"================================================="<<endl;

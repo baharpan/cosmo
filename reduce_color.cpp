@@ -20,20 +20,21 @@ using namespace sdsl;
 
 
 int main(int argc, char* argv[]){
-  if (argc < 3) {
+  if (argc < 4) {
          cerr << "Error: More arguments needed" << endl;
          return -1;
      }
 
   ifstream fastqfile(argv[1]);
   int num_reads = stoi(argv[2]);
+  int k = stoi(argv[3]);
   reduction re;
-  re.build_recolored_matrix (fastqfile , num_reads);
+  re.build_recolored_matrix (k, fastqfile , num_reads);
   fastqfile.close();
   cerr<<"Number of unique kmers:  "<<re.pairs.size()<<endl;
   cerr<<"Number of colors before reduction:  "<<num_reads <<endl;
   cerr<<"Number of colors after reduction:  "<<re.num_color <<endl;
-  cerr<<"The reduction percentage:  "<<(double)re.num_color * 100 /num_reads<<"%\n";
+  cerr<<"The reduction percentage:  "<<(num_reads - (double)re.num_color) * 100 /num_reads<<"%\n";
   cerr<<"DONE!"<<endl;
 
 }
