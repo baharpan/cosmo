@@ -75,7 +75,7 @@ public:
           max = online_kmers[pairs[subreadit[i]]];}
           online_kmers[pairs[subreadit[i]]] += 1;
     }
-
+    if (max == -1) return max+1;
     while(max != color_map.size() + 1 ){
       for (size_t i = 0; i < subreadit.size(); i++){
 		    for (size_t j = 0; j < color_map[max+1].size(); j++){
@@ -198,7 +198,7 @@ public:
         frequency<<i->second[j]<<" ";
         frequency<<" : "<<i->second.size()<<endl;
         }
-      //test(color_map, reads_of_kmer);
+      test(color_map, reads_of_kmer);
       }
 
 };
