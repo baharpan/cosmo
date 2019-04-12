@@ -46,7 +46,7 @@ public:
 
     map<string,size_t> pairs = index_maker();
     vector<int> online_kmers{vector<int>(pairs.size(),-1)};
-
+    map<int,vector<int>> reads_of_kmer;
 
 
 
@@ -70,29 +70,60 @@ public:
 
     int which_color ( vector<string> &subreadit){
       int max = -1;
-      for (size_t i = 0; i < subreadit.size(); ++i){
-        if (online_kmers[pairs[subreadit[i]]] > max )
-          max = online_kmers[pairs[subreadit[i]]];
+      for (size_t i = 0; i < subreadit.size(); i++){
+        if (online_kmers[pairs[subreadit[i]]] > max ){
+          max = online_kmers[pairs[subreadit[i]]];}
           online_kmers[pairs[subreadit[i]]] += 1;
     }
-      return max+1;
-    }
 
+    while(max != color_map.size() + 1 ){
+      for (size_t i = 0; i < subreadit.size(); i++){
+		    for (size_t j = 0; j < color_map[max+1].size(); j++){
+             if (find (reads_of_kmer[pairs[subreadit[i]]].begin(), reads_of_kmer[pairs[subreadit[i]]].end(),
+            color_map[max+1][j]) != reads_of_kmer[pairs[subreadit[i]]].end()) { max++; i = -1; j = -1;  break;}
+          }
+
+        }
+        return max+1;
+      }
+
+
+    }
+    void test(map<size_t, vector<size_t>> color_map, map<int,vector<int>> reads_of_kmer){
+      for (size_t i = 0; i < color_map.size(); i++){
+        for (size_t k = 0; k < color_map[i].size()-1; k++){
+          for (size_t j = 0; j < reads_of_kmer.size(); j++){
+            if (find(reads_of_kmer[j].begin(), reads_of_kmer[j].end(), color_map[i][k]) != reads_of_kmer[j].end()
+              && find(reads_of_kmer[j].begin(), reads_of_kmer[j].end(), color_map[i][k+1]) != reads_of_kmer[j].end()){
+                cerr<<"ERROR: "<<color_map[i][k]<<" and "<< color_map[i][k+1]<<" should not have same label since kmer "<<j<<" is present in both"<<endl;
+                exit(0);}
+
+        }
+      }
+    }
+    cerr<<"Test Passed"<<endl;
+  }
 
     void build (vector<string> found_kmers_per_read, size_t read){
       int color = which_color(found_kmers_per_read);
       if (color < num_color ){
-        for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it)
+        for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it){
           build_backup.push_back(pairs[*it] + color * pairs.size());
+	        reads_of_kmer[pairs[*it]].push_back(read);
+	}
           color_map[color].push_back(read);
             }
       else{
         num_color++;
-        for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it)
+
+        for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it){
           build_backup.push_back(pairs[*it] + color * pairs.size());
+          vector<int> new_reads;
+          new_reads.push_back(read);
+	        reads_of_kmer[pairs[*it]].push_back(read);}
         vector<size_t> new_colomn;
         new_colomn.push_back(read);
-        color_map.insert(make_pair(color,new_colomn));
+        color_map[color].push_back(read);
           }
       }
 
@@ -158,6 +189,16 @@ public:
         labels<<endl;
       }
       labels.close();
+      ofstream frequency;
+      frequency.open("frequency.txt");
+      frequency<<"kmer\treads\tfrequency\n";
+      for (auto i = reads_of_kmer.begin(); i != reads_of_kmer.end(); i++){
+        frequency<<i->first<<"\t";
+        for (size_t j = 0; j < i->second.size(); ++j)
+        frequency<<i->second[j]<<" ";
+        frequency<<" : "<<i->second.size()<<endl;
+        }
+      //test(color_map, reads_of_kmer);
       }
 
 };
