@@ -188,7 +188,6 @@ public:
       for(vector<size_t>::iterator it = build_backup.begin(); it!= build_backup.end(); ++it){
       	b_builder.set(*it);
       }
-      cout<<"here"<<endl;
       sdsl::sd_vector<> b(b_builder);
       cerr << "Total size of reduced matrix: "<<size_in_mega_bytes(b) <<" Mb"<<endl;
       cerr<<"Writing the matrix to output_matrix_reduced"<<endl;
