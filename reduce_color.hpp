@@ -68,32 +68,34 @@ public:
     }
 
 
-    int which_color ( vector<string> &subreadit , size_t read){
-      cout<<read<<endl;
+    int which_color ( vector<string> &subreadit){
       int max = -1;
       vector<size_t> counter;
       for (size_t i = 0; i < subreadit.size(); i++){
-        if (online_kmers[pairs[subreadit[i]]] > max ){
+        if (find(counter.begin(), counter.end(), pairs[subreadit[i]]) == counter.end()){
+          if (online_kmers[pairs[subreadit[i]]] > max ){
           max = online_kmers[pairs[subreadit[i]]];}
-          if (find(counter.begin(), counter.end(), pairs[subreadit[i]]) == counter.end()){
+
           online_kmers[pairs[subreadit[i]]] += 1;
           counter.push_back(pairs[subreadit[i]]);}
-    }
-    if (max == -1) return max+1;
-    while(max != color_map.size() + 1 ){
-      cout<<"candidate max "<<max<<endl;
-      for (size_t i = 0; i < subreadit.size(); i++){
-		    for (size_t j = 0; j < color_map[max+1].size(); j++){
-             if (color_map[max+1][j] != read && find (reads_of_kmer[pairs[subreadit[i]]].begin(), reads_of_kmer[pairs[subreadit[i]]].end(),
-            color_map[max+1][j]) != reads_of_kmer[pairs[subreadit[i]]].end() ) { max++; i = -1; j = -1;  break;}
-          }
-
         }
+
+
+        if (max == -1) return max+1;
+        while(max != color_map.size() + 1 ){
+          for (size_t i = 0; i < subreadit.size(); i++){
+		          for (size_t j = 0; j < color_map[max+1].size(); j++){
+                if (find (reads_of_kmer[pairs[subreadit[i]]].begin(), reads_of_kmer[pairs[subreadit[i]]].end(),
+                  color_map[max+1][j]) != reads_of_kmer[pairs[subreadit[i]]].end() )
+                    { max++; i = -1; j = -1;  break;}
+                  }
+
+                }
         return max+1;
       }
-
-
     }
+
+
     void test(map<size_t, vector<size_t>> color_map, map<int,vector<int>> reads_of_kmer){
       for (size_t i = 0; i < color_map.size(); i++){
         for (size_t k = 0; k < color_map[i].size()-1; k++){
@@ -110,12 +112,10 @@ public:
   }
 
     void build (vector<string> found_kmers_per_read, size_t read){
-      int color = which_color(found_kmers_per_read , read);
+      int color = which_color(found_kmers_per_read);
       if (color < num_color ){
         for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it){
-
           if (find(build_backup.begin(), build_backup.end(), pairs[*it] + color * pairs.size()) != build_backup.end()) continue;
-
           build_backup.push_back(pairs[*it] + color * pairs.size());
           if (find(reads_of_kmer[pairs[*it]].begin(), reads_of_kmer[pairs[*it]].end(), read) != reads_of_kmer[pairs[*it]].end()) continue;
 	        reads_of_kmer[pairs[*it]].push_back(read);
@@ -127,7 +127,6 @@ public:
 
         for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it){
           if (find(build_backup.begin(), build_backup.end(), pairs[*it] + color * pairs.size()) != build_backup.end()) continue;
-          cout<<pairs[*it]<<" "<<color<<" "<<pairs[*it] + color * pairs.size()<<endl;
           build_backup.push_back(pairs[*it] + color * pairs.size());
           if (find(reads_of_kmer[pairs[*it]].begin(), reads_of_kmer[pairs[*it]].end(), read) != reads_of_kmer[pairs[*it]].end()) continue;
           vector<int> new_reads;
@@ -180,33 +179,12 @@ public:
       size_t n = (num_color ) * pairs.size();
       size_t m = build_backup.size();
 
-      ofstream labels;
-      labels.open("labels.txt");
-      labels<<"Labels\tColors\n";
-      for (map<size_t,vector<size_t>>::iterator it = color_map.begin(); it != color_map.end(); ++it){
-        labels<<it->first<<"\t";
-        for (size_t j = 0; j < it->second.size(); ++j)
-          labels<<it->second[j]<<" ";
-        labels<<endl;
-      }
-      labels.close();
-      ofstream frequency;
-      frequency.open("frequency.txt");
-      frequency<<"kmer\treads\tfrequency\n";
-      for (auto i = reads_of_kmer.begin(); i != reads_of_kmer.end(); i++){
-        frequency<<i->first<<"\t";
-        for (size_t j = 0; j < i->second.size(); ++j)
-        frequency<<i->second[j]<<" ";
-        frequency<<" : "<<i->second.size()<<endl;
-        }
-
 
       cerr<<"================================================="<<endl;
       cerr << "Matrix dimensions: n = " << n<< " m = " << m <<endl;
       sdsl::sd_vector_builder b_builder(n, m);
 
       std::sort(build_backup.begin(), build_backup.end());
-      for (int i = 0; i < build_backup.size(); i++) {cout<<build_backup[i]<<endl;}
       for(vector<size_t>::iterator it = build_backup.begin(); it!= build_backup.end(); ++it){
       	b_builder.set(*it);
       }
@@ -217,7 +195,28 @@ public:
       string outfilename = "output_matrix_reduced";
       sdsl::store_to_file(b, outfilename);
 
-      test(color_map, reads_of_kmer);
+
+      ofstream labels;
+      labels.open("labels.txt");
+      labels<<"Labels\tColors\n";
+      for (map<size_t,vector<size_t>>::iterator it = color_map.begin(); it != color_map.end(); ++it){
+        labels<<it->first<<"\t";
+        for (size_t j = 0; j < it->second.size(); ++j)
+          labels<<it->second[j]<<" ";
+        labels<<endl;
+      }
+      labels.close();
+      /*ofstream frequency;
+      frequency.open("frequency.txt");
+      frequency<<"kmer\treads\tfrequency\n";
+      for (auto i = reads_of_kmer.begin(); i != reads_of_kmer.end(); i++){
+        frequency<<i->first<<"\t";
+        for (size_t j = 0; j < i->second.size(); ++j)
+        frequency<<i->second[j]<<" ";
+        frequency<<" : "<<i->second.size()<<endl;
+      }*/
+
+      //test(color_map, reads_of_kmer);
       }
 
 };
