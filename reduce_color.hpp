@@ -198,7 +198,7 @@ public:
         frequency<<i->second[j]<<" ";
         frequency<<" : "<<i->second.size()<<endl;
         }
-      test(color_map, reads_of_kmer);
+      //test(color_map, reads_of_kmer);
       }
 
 };
