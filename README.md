@@ -20,16 +20,15 @@ Color matrix constructed with orders of magnitude less number of colors and comp
 ```
 #count the k-mers (-ci is a threshold for filtering weak kmers)
 mkdir -p kmc_temp
-./kmc -b -ci0 -fq -k32 -cs250 <fastq file> <output.kmc> kmc_temp
-./kmc_tools sort <output.kmc> <output.kmc.sorted>
+#Note: -ci value should be same in two below commands
+./kmc -b -ci3 -fq -k32 <fastq file> <output.kmc> kmc_temp
+./kmc_dump -ci3 <output.kmc> dump
 
-echo "output.kmc.sorted" > list
-
-#construct the de Bruijn graph
-./cosmo-pack -k list
+python edit.py dump pair
 
 #construct the read-colored matrix with reduced number of colors:
-./reduce_color <fastq file> <number of reads>
+#Note: k should be equal to the k value used in KMC
+./reduce_color <fastq file> <number of reads> <k value>
 
 #example: (please check the paths before running)
 cd test
