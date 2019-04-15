@@ -19,25 +19,25 @@ class reduction {
 
 public:
   int num_color = 0;
-  map<size_t, vector<size_t>> color_map;
-  map<size_t, set<size_t>> kmer_map;
-  set<size_t> build_backup;
+  map<unsigned long long, vector<unsigned long long>> color_map;
+  map<unsigned long long, set<unsigned long long>> kmer_map;
+  set<unsigned long long> build_backup;
 
 
 
-  map<string,size_t> index_maker(){
+  map<string,unsigned long long> index_maker(){
     cerr<<"Making the pair map"<<endl;
     cerr<<"================================================="<<endl;
     ifstream f ("pair" , ifstream::in);
-    map<string,size_t> pairs;
+    map<string,unsigned long long> pairs;
     string s;
-    size_t index = 0;
+    unsigned long long index = 0;
     while( getline(f,s) ){
       locale loc;
       string ss = "";
-      for (string::size_type i = 0; i < s.length(); ++i)
+      for (size_t i = 0; i < s.length(); ++i)
         ss += toupper(s[i],loc);
-        pairs.insert(pair<string,size_t>(ss,index));
+        pairs.insert(pair<string,unsigned long long>(ss,index));
         index++;
       }
       f.close();
@@ -45,7 +45,7 @@ public:
     }
 
 
-    map<string,size_t> pairs = index_maker();
+    map<string,unsigned long long> pairs = index_maker();
     vector<int> online_kmers{vector<int>(pairs.size(),-1)};
 
 
@@ -57,7 +57,7 @@ public:
       if (k > read.size()) cout<<"ERROR: k should be smaller than read length"<<endl;
       while(pos != read.size()-k+1){
         kmer = read.substr(pos,k);
-        map<string,size_t>::iterator find = pairs.find(kmer);
+        map<string,unsigned long long>::iterator find = pairs.find(kmer);
         if (find != pairs.end())
           found_kmers_per_read.push_back(kmer);
 
@@ -145,8 +145,8 @@ public:
     void build_recolored_matrix (int k, ifstream& f , int num_reads){
 
       parser(k, f, num_reads);
-      size_t n = (num_color ) * pairs.size();
-      size_t m = build_backup.size();
+      unsigned long long n = (num_color ) * pairs.size();
+      unsigned long long m = build_backup.size();
 
 
       cerr<<"================================================="<<endl;
@@ -154,7 +154,7 @@ public:
       sdsl::sd_vector_builder b_builder(n, m);
 
       //std::sort(build_backup.begin(), build_backup.end());
-      for(set<size_t>::iterator it = build_backup.begin(); it!= build_backup.end(); ++it){
+      for(set<unsigned long long>::iterator it = build_backup.begin(); it!= build_backup.end(); ++it){
       	b_builder.set(*it);
       }
       sdsl::sd_vector<> b(b_builder);
@@ -167,7 +167,7 @@ public:
       ofstream labels;
       labels.open("labels.txt");
       labels<<"Labels\tColors\n";
-      for (map<size_t,vector<size_t>>::iterator it = color_map.begin(); it != color_map.end(); ++it){
+      for (map<unsigned long long,vector<unsigned long long>>::iterator it = color_map.begin(); it != color_map.end(); ++it){
         labels<<it->first<<"\t";
         for (size_t j = 0; j < it->second.size(); ++j)
           labels<<it->second[j]<<" ";
