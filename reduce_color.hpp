@@ -54,7 +54,10 @@ public:
       string kmer;
       vector<string> found_kmers_per_read;
       size_t pos = 0;
-      if (k > read.size()) cout<<"ERROR: k should be smaller than read length"<<endl;
+      if (k > read.size()) {
+        cout<<"ERROR: k should be smaller than minimum read length"<<endl;
+        exit(EXIT_FAILURE);
+      }
       while(pos != read.size()-k+1){
         kmer = read.substr(pos,k);
         map<string,unsigned long long>::iterator find = pairs.find(kmer);
@@ -69,7 +72,7 @@ public:
 
     int which_color ( vector<string> &subreadit){
       int max = -1;
-      vector<size_t> counter;
+      /*vector<size_t> counter;
       for (size_t i = 0; i < subreadit.size(); i++){
         if (find(counter.begin(), counter.end(), pairs[subreadit[i]]) == counter.end()){
           if (online_kmers[pairs[subreadit[i]]] > max ){
@@ -80,7 +83,7 @@ public:
         }
 
 
-        if (max == -1) return max+1;
+        if (max == -1) return max+1;*/
         while(max != color_map.size() + 1 ){
           for (size_t i = 0; i < subreadit.size(); i++){
             auto it = kmer_map[max+1].find(pairs[subreadit[i]]);
