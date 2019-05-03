@@ -70,9 +70,10 @@ public:
     }
 
 
-    int which_color ( vector<string> &subreadit){
+    int which_color ( vector<string> &subreadit , bool large){
       int max = -1;
-      /*vector<size_t> counter;
+      if (large){
+      vector<size_t> counter;
       for (size_t i = 0; i < subreadit.size(); i++){
         if (find(counter.begin(), counter.end(), pairs[subreadit[i]]) == counter.end()){
           if (online_kmers[pairs[subreadit[i]]] > max ){
@@ -82,8 +83,8 @@ public:
           counter.push_back(pairs[subreadit[i]]);}
         }
 
-
-        if (max == -1) return max+1;*/
+ 
+        if (max == -1) return max+1; }
         while(max != color_map.size() + 1 ){
           for (size_t i = 0; i < subreadit.size(); i++){
             auto it = kmer_map[max+1].find(pairs[subreadit[i]]);
@@ -99,7 +100,9 @@ public:
 
 
     void build (vector<string> found_kmers_per_read, size_t read){
-      int color = which_color(found_kmers_per_read);
+      bool large = false;
+      if (read > 1000000) large = true;
+      int color = which_color(found_kmers_per_read , large);
       if (color == num_color ) num_color++;
         for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it){
           build_backup.insert(pairs[*it] + color * pairs.size());
