@@ -22,6 +22,7 @@ public:
   map<unsigned long long, vector<unsigned long long>> color_map;
   map<unsigned long long, set<unsigned long long>> kmer_map;
   set<unsigned long long> build_backup;
+  bool large;
 
 
 
@@ -70,7 +71,7 @@ public:
     }
 
 
-    int which_color ( vector<string> &subreadit , bool large){
+    int which_color ( vector<string> &subreadit){
       int max = -1;
       if (large){
       vector<size_t> counter;
@@ -83,7 +84,7 @@ public:
           counter.push_back(pairs[subreadit[i]]);}
         }
 
- 
+
         if (max == -1) return max+1; }
         while(max != color_map.size() + 1 ){
           for (size_t i = 0; i < subreadit.size(); i++){
@@ -100,9 +101,7 @@ public:
 
 
     void build (vector<string> found_kmers_per_read, size_t read){
-      bool large = false;
-      if (read > 1000000) large = true;
-      int color = which_color(found_kmers_per_read , large);
+      int color = which_color(found_kmers_per_read);
       if (color == num_color ) num_color++;
         for (vector<string>::iterator it = found_kmers_per_read.begin(); it!= found_kmers_per_read.end(); ++it){
           build_backup.insert(pairs[*it] + color * pairs.size());
@@ -149,7 +148,7 @@ public:
 
 
     void build_recolored_matrix (int k, ifstream& f , int num_reads){
-
+      large = (num_reads > 1000000) ?  true : false;
       parser(k, f, num_reads);
       unsigned long long n = (num_color ) * pairs.size();
       unsigned long long m = build_backup.size();
