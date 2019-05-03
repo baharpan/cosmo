@@ -73,7 +73,7 @@ public:
 
     int which_color ( vector<string> &subreadit){
       int max = -1;
-      if (large){
+      /*if (large){
       vector<size_t> counter;
       for (size_t i = 0; i < subreadit.size(); i++){
         if (find(counter.begin(), counter.end(), pairs[subreadit[i]]) == counter.end()){
@@ -85,7 +85,7 @@ public:
         }
 
 
-        if (max == -1) return max+1; }
+        if (max == -1) return max+1; }*/
         while(max != color_map.size() + 1 ){
           for (size_t i = 0; i < subreadit.size(); i++){
             auto it = kmer_map[max+1].find(pairs[subreadit[i]]);
