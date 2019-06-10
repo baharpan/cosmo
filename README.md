@@ -20,16 +20,16 @@ Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team
 .fasta file of gene-sized sequences spanning the SNPs, with specifying the SNP index and varying nucleotides.  
 ## Running LueVari
 ```
-#count the k-mers
+#count the k-mers (-k should be same in KMC, bubble_matrix and bubbles. Note that this version of BOSS does not support k values > 32. This issue will be fixed).
 mkdir -p kmc_temp
-ls -1 --color=no *.fasta |xargs -l -i echo "~/kmc -b -fq -k32 -ci0 -cs250 {} {}.kmc kmc_temp" >kmercount.sh
+ls -1 --color=no *.fastq |xargs -l -i echo "~/kmc -b -fq -k32 -ci0 -cs250 {} {}.kmc kmc_temp" >kmercount.sh
 source kmercount.sh
-ls -1 --color=no *.fasta |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
+ls -1 --color=no *.fastq |xargs -l -i echo "~/kmc_tools sort {}.kmc {}.kmc.sorted " >kmercountsort.sh
 source kmercountsort.sh
-ls -1 --color=no *.fasta |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
+ls -1 --color=no *.fastq |xargs -l -i echo "{}.kmc.sorted" > kmers_list
 
 #build the succinct de Bruijn graph
-./cosmo-pack -k filtered_kmc2_list 
+./cosmo-pack -k kmers_list 
 
 
 #construct the read-colored matrix
