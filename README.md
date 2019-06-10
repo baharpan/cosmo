@@ -43,7 +43,7 @@ python matrix_prepare.py outputFile kmers.txt
 ./fast_matrix
 
 #SNP calling
-./bubbles
+./bubbles -c <minimum coverage> -u <number of output sequences> -b <max length of output sequences> -n <number of reads> -k <k value>
 
 ```
 ## Authors
