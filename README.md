@@ -1,5 +1,5 @@
 # LueVari
-LueVari is a reference free resistom SNP caller, based on the read-colored de Bruijn graph. LuVari is an extension of VARI (https://github.com/cosmo-team/cosmo/tree/VARI), in which the reads are stored as colors to allow the read-coherent traversal of de Bruijn graph. 
+LueVari is a reference free metagenome SNP caller, based on the read-colored de Bruijn graph. LuVari is an extension of VARI (https://github.com/cosmo-team/cosmo/tree/VARI), in which the reads are stored as colors to allow the read-coherent traversal of de Bruijn graph. 
 ### Prerequisites
 
 VARI and its all Prerequisites
@@ -15,7 +15,7 @@ git checkout LueVari
 Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team/cosmo/tree/VARI#building-notes)
 ```
 # Input
-.fastq files 
+.fastq file (read set) 
 # Output
 .fasta file of gene-sized sequences spanning the SNPs, with specifying the SNP index and varying nucleotides.  
 ## Running LueVari
