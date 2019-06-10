@@ -44,6 +44,7 @@ using namespace boost::adaptors;
 
 const static string extension = ".packed";
 std::map<string,int> pairs;
+//std::cerr<<"here"<<endl;
 std::map<string,int>::iterator it;
 int k=19;
 
@@ -53,32 +54,33 @@ void convert(kmer_t * kmers, size_t num_kmers, const uint32_t k, Visitor visit, 
   convert_representation(kmers, kmers, num_kmers, swap);
   //print_kmers(std::cout, kmers, num_kmers, k);
   int index=0;
-  uint8_t * dummy_lengths = 0;
+  uint8_t * dummy_lengths;
+
    for (int i = 0; i < num_kmers; i++) {
-   
+
      pairs.insert(std::make_pair( kmer_to_string(kmers[i], k,((dummy_lengths)? dummy_lengths[i]:k)),index++));
     }
-   
-    ofstream pair ("/s/fir/c/nobackup/baharpan/git/cosmo/yeast");
+
+    ofstream pair ("pair");
     for (it=pairs.begin(); it!= pairs.end(); ++it){
     pair<<it->first<<endl;
     }
-     
-   //cout<<"The size of pairs is"<<pairs.size();
+
+
   // Append reverse complements
-  #ifdef ADD_REVCOMPS
+ /* #ifdef ADD_REVCOMPS
   size_t revcomp_factor = 2;
   transform(kmers, kmers + num_kmers, kmers + num_kmers, reverse_complement<kmer_t>(k));
   //print_kmers(std::cout, kmers, num_kmers * revcomp_factor, k);
-  
+
   //memcpy(colors + num_kmers, colors, sizeof(uint64_t) * num_kmers); // copy all of the color masks for the reverse kmers
-  
+
 
  std::copy(colors.begin(), colors.begin() + num_kmers, colors.begin() + num_kmers);
-   
-  #else
+
+  #else*/
   size_t revcomp_factor = 1;
-  #endif
+  //#endif
 
   // NOTE: There might be a way to do this recursively using counting (and not two tables)
   // After the sorting phase, Table A will in <colex(node), edge> order (as required for output)
@@ -132,7 +134,7 @@ void convert(kmer_t * kmers, size_t num_kmers, const uint32_t k, Visitor visit, 
     exit(1);
   }
   // extract dummies
-  printf("num_kmers=%zu; revcomp_factor=%zu; incoming_dummmies=%zu\n", num_kmers, revcomp_factor, num_incoming_dummies);
+  //printf("num_kmers=%zu; revcomp_factor=%zu; incoming_dummmies=%zu\n", num_kmers, revcomp_factor, num_incoming_dummies);
   find_incoming_dummy_edges(table_a, table_b, num_kmers*revcomp_factor, k, incoming_dummies);
   // add extra dummies
   #ifdef ALL_DUMMIES
@@ -201,7 +203,7 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
   TCLAP::UnlabeledValueArg<std::string> input_filename_arg("input",
             "Input file. Currently only supports DSK's binary format (for k<=64).", true, "", "input_file", cmd);
 //TCLAP::UnlabeledValueArg<std::string> input_filename_arg("pay",
-  //          "Input file. Currently only supports DSK's binary format (for k<=64).", true, "", "pay_file", cmd) 
+  //          "Input file. Currently only supports DSK's binary format (for k<=64).", true, "", "pay_file", cmd)
  string output_short_form = "output_prefix";
   TCLAP::ValueArg<std::string> output_prefix_arg("o", "output_prefix",
             "Output prefix. Results will be written to [" + output_short_form + "]" + extension + ". " +
@@ -215,7 +217,7 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
   cmd.parse( argc, argv );
   //params.ascii         = ascii_arg.getValue();
   params.input_filename  = input_filename_arg.getValue();
- // params.pay_filename  = pay_filename_arg.getValue();  
+ // params.pay_filename  = pay_filename_arg.getValue();
   params.output_prefix   = output_prefix_arg.getValue();
   params.kmc          = kmc_arg.getValue();
   params.cortex = cortex_arg.getValue();
@@ -223,16 +225,16 @@ void parse_arguments(int argc, char **argv, parameters_t & params)
 void serialize_color_bv(std::ofstream &cfs, const int &color)//std::vector<color_bv>::iterator &colors, uint64_t index)
 {
   cfs.write((char *)&color, sizeof(int)); //FIXME: Is this the right way to serailize std::bitset?
-    
-   
-    
+
+
+
 }
 
-#ifdef ADD_REVCOMPS
-static const size_t revcomp_factor = 2;
-#else
+//#ifdef ADD_REVCOMPS
+//static const size_t revcomp_factor = 2;
+//#else
 static const size_t revcomp_factor = 1;
-#endif
+//#endif
 
 
 uint64_t* allocate_blocks(const uint32_t kmer_num_bits, const size_t num_kmers, const char* file_name)
@@ -244,15 +246,15 @@ uint64_t* allocate_blocks(const uint32_t kmer_num_bits, const size_t num_kmers, 
         exit(EXIT_FAILURE);
     }
 
-    
+
     if (num_kmers == 0) {
         fprintf(stderr, "ERROR: File %s has no kmers (possibly corrupt?).\n", file_name);
         exit(EXIT_FAILURE);
     }
-    
+
     assert(kmer_num_bits % 64 == 0);
-    uint32_t kmer_num_blocks = (kmer_num_bits  / 8 ) / sizeof(uint64_t) ; 
-    
+    uint32_t kmer_num_blocks = (kmer_num_bits  / 8 ) / sizeof(uint64_t) ;
+
     TRACE("kmer_num_bits, k = %d, %d\n", kmer_num_bits, kmer_size);
     TRACE("kmer_num_blocks = %d\n", kmer_num_blocks);
 
@@ -281,7 +283,7 @@ void load_kmers(const parameters_t& params, std::vector<int>& kmer_colors, uint6
         exit(EXIT_FAILURE);
     }
 
-    
+
     /* if (params.cortex) {
         std::cerr << "Reading cortex file " << file_name << std::endl;
         if ( !cortex_read_header(handle, &kmer_num_bits, &kmer_size) ) {
@@ -313,7 +315,7 @@ void load_kmers(const parameters_t& params, std::vector<int>& kmer_colors, uint6
         }
         assert(num_records_read == num_kmers);
         TRACE("num_records_read = %zu\n", num_records_read);
-        
+
         printf("num_kmers = %zu and num_records_read=%zu\n", num_kmers, num_records_read);*/
 
 
@@ -329,11 +331,11 @@ void load_kmers(const parameters_t& params, std::vector<int>& kmer_colors, uint6
 
        std::cerr << "Will read a maximum of " << peak_kmers << " " << kmer_size << "-mers from some color, each with " << kmer_num_bits << " bits." << std::endl;
 
-	/* if (num_colors > NUM_COLS) {
+/*	 if (num_colors > NUM_COLS) {
             fprintf(stderr, "KMC file %s contains %d colors which exceeds the compile time limit of %d.  Please recompile with NUM_COLS=%d (or larger).\n", file_name, num_colors, NUM_COLS, num_colors);
             exit(EXIT_FAILURE);
 	    }*/
-        
+
         kmer_colors.reserve(peak_kmers);
 
         // preallocate enough space for the color0, as we'll certainly need at least that much space
@@ -356,7 +358,7 @@ void load_kmers(const parameters_t& params, std::vector<int>& kmer_colors, uint6
 	// std::copy( kmer_colors.begin(),  kmer_colors.begin() + num_kmers,  kmer_colors.begin() + num_kmers);
 	// std::copy( kmer_colors.begin(),  kmer_colors.begin() + num_kmers,  kmer_colors.begin() + 2 * num_kmers);
 	//  std::copy( kmer_colors.begin(),  kmer_colors.begin() + num_kmers,  kmer_colors.begin() + 3 * num_kmers);
-	 
+
  /*else {
         std::cerr << "Reading DSK file " << file_name << std::endl;
         if ( !dsk_read_header(handle, &kmer_num_bits, &kmer_size) ) {
@@ -383,7 +385,7 @@ void load_kmers(const parameters_t& params, std::vector<int>& kmer_colors, uint6
     close(handle);
 }
 
-}        
+}
 
 int main(int argc, char * argv[])
 {
@@ -401,7 +403,7 @@ int main(int argc, char * argv[])
     uint32_t num_colors = 0;
     std::map<string,int> pairs;
     int index=0;
-    
+
     load_kmers(params,  kmer_colors, kmer_blocks, kmer_num_bits, kmer_size, num_kmers, num_colors);
 
     char * base_name = basename(const_cast<char*>(params.input_filename.c_str()));
@@ -435,10 +437,10 @@ int main(int argc, char * argv[])
     for (unsigned int citer=0; citer < num_colors; ++citer)
     ones[citer] = 1;*/
 
-  
+
    std::vector<int>::iterator color =  kmer_colors.begin()+ num_kmers * revcomp_factor;
     //size_t index = 0;
-   
+
 
     if (kmer_num_bits == 64) {
         typedef uint64_t kmer_t;
@@ -456,17 +458,17 @@ int main(int argc, char * argv[])
                     out.write(tag, x, this_k, lcs_len, first_end_node);
 #endif
 		   if (tag == standard) {
-		   
+
 		    permutation.push_back(pairs.find(kmer_to_string(x, k, this_k))->second);}
 		    // cerr << kmer_to_string(x, k, this_k)<<pairs.find(kmer_to_string(x, k, this_k))->second<< "\n";}
-		   
+
 		   else{
 		     permutation.push_back (-1);
            }
-		  
+
                         //cfs.write((char *)&colors[index++], sizeof(uint64_t));
 		       //  }
-		     
+
 
 		       // else {
                         //uint64_t ones = -1;
@@ -480,20 +482,20 @@ int main(int argc, char * argv[])
 		       //	}
                     prev_k = this_k;
                 }, !( params.kmc), kmer_colors, pairs);
-	cout<<"The size of permutation vector is"<<permutation.size()<<endl;
-
-		
-       // ofstream payload;
-    //payload.open(outfilename + ".color", ios::out);
 	
+
+
+        ofstream payload;
+    payload.open(outfilename + ".color", ios::out);
+
 	for(vector<int>::iterator it=permutation.begin();it!=permutation.end();++it){
-	  
+
        cfs<<*it<<" ";}
-	 
+
     }
-    
+
     else if (kmer_num_bits == 128) {
-      
+
         typedef uint128_t kmer_t;
         size_t prev_k = 0;
         kmer_t * kmer_blocks_128 = (kmer_t*)kmer_blocks;
@@ -509,7 +511,7 @@ int main(int argc, char * argv[])
                     if (tag == standard) {
                         // cerr << kmer_to_string(x, k, this_k) << "c" << colors[index] << "\n";
     //                    serialize_color_bv(cfs, *colors);
-		
+
                         //cfs.write((char *)&colors[index++], sizeof(uint64_t));
                     }
 		    /* else {
@@ -521,7 +523,7 @@ int main(int argc, char * argv[])
                     prev_k = this_k;
                 }, !( params.kmc), kmer_colors, pairs);
     }
-    
+
 
     out.close();
 #ifdef VAR_ORDER
@@ -540,5 +542,3 @@ int main(int argc, char * argv[])
 
     return 0;
 }
-
- 
