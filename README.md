@@ -5,7 +5,7 @@ LueVari is a reference free resistom SNP caller, based on the read-colored de Br
 
 VARI and its all Prerequisites
 
-Bowtie (https://github.com/BenLangmead/bowtie)
+
 
 ### Installing
 ```
@@ -16,9 +16,9 @@ git checkout LueVari
 Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team/cosmo/tree/VARI#building-notes)
 ```
 # Input
-Either .fasta or .fastq files. with integer ids
+.fastq files 
 # Output
-.fasta file of gene-sized sequences spanning the SNPs, with specifying the SNP index and varying Nucleotides.  
+.fasta file of gene-sized sequences spanning the SNPs, with specifying the SNP index and varying nucleotides.  
 ## Running LueVari
 ```
 #count the k-mers
@@ -32,15 +32,9 @@ ls -1 --color=no *.fasta |xargs -l -i echo "{}.kmc.sorted" > filtered_kmc2_list
 #build the succinct de Bruijn graph
 ./cosmo-pack -k filtered_kmc2_list 
 
-#align the k-mers to reads
-./bowtie-build  <reads.fasta> flat_bowtie
-./bowtie -f  -a -v0 flat_bowtie <kmers.fasta> outputFile
-
-#prepare the kmers and the reads to fill the read-colored matrix
-python matrix_prepare.py outputFile kmers.txt
 
 #construct the read-colored matrix
-./fast_matrix
+./bubbles_matrix -n <number of reads> -k <k value> -i <input file>
 
 #SNP calling
 ./bubbles -c <minimum coverage> -u <number of output sequences> -b <max length of output sequences> -n <number of reads> -k <k value>
