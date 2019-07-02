@@ -1,20 +1,20 @@
 # NOTE: needs boost, tclap, and sdsl
-
 CXX=g++ #clang++ # g++
 CPP_FLAGS=-g -m64 -std=c++0x -W -Wall -Wextra -Wpointer-arith -Wcast-qual \
-					-Wstrict-prototypes -Wmissing-prototypes -Wwrite-strings \
+					  -Wwrite-strings \
 #					-Wbool-conversions -Wshift-overflow -Wliteral-conversion \
 					-Werror -W -fno-strict-aliasing
-DEP_PATH=/usr/local
-INC_PATH=$(DEP_PATH)/include
-LIB_PATH=$(DEP_PATH)/lib
-MM_PATH=/s/chopin/k/grad/baharpan
-KMC_PATH=/s/fir/c/nobackup/baharpan/git/KMC
+BOOST_PATH=3rd_party_inst/boost
+DEP_PATH=3rd_party_inst
+INC_PATH=-isystem $(DEP_PATH)/include -isystem $(BOOST_PATH)/include
+LIB_PATH=-L$(DEP_PATH)/lib -L./ -L$(BOOST_PATH)/lib
+KMC_PATH=3rd_party_src/KMC
+BOOST_FLAGS= -lboost_system -lboost_filesystem
 
-DEP_FLAGS=-I$(HOME)/proot/include -isystem $(KMC_PATH) -isystem $(MM_PATH)/include -L$(MM_PATH)/lib -I$(INC_PATH)/ -L$(HOME)/proot/lib -L$(LIB_PATH)/ -lsdsl # -ldivsufsort -ldivsufsort64
-DEBUG_FLAGS=-g
+DEP_FLAGS=$(INC_PATH) $(LIB_PATH) $(BOOST_FLAGS) -isystem $(KMC_PATH)  -lsdsl -fopenmp
+DEBUG_FLAGS=-pg -gstabs
 NDEBUG_FLAGS= -DNDEBUG
-OPT_FLAGS= -O3 -mmmx -msse -msse2 -msse3 -msse4 -msse4.2 -march=native
+OPT_FLAGS= -O3 -mmmx -msse -msse2 -msse3 -msse4 -msse4.2 
 NOPT_FLAGS=-O0
 NUM_COLS=64
 # Using Semantic Versioning: http://semver.org/
@@ -49,13 +49,13 @@ ifeq ($(varord),1)
 CPP_FLAGS+=-DVAR_ORDER
 endif
 
-BUILD_REQS=debruijn_graph.hpp io.hpp io.o debug.h
-COLOR_REQS=colored_debruijn_graph.hpp io.hpp io.o debug.h
+BUILD_REQS=debruijn_graph.hpp io.hpp io.o debug.h 
+COLOR_REQS=colored_debruijn_graph.hpp io.hpp io.o debug.h 
 ASSEM_REQS=debruijn_graph.hpp algorithm.hpp utility.hpp kmer.hpp uint128_t.hpp
-PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp
-BINARIES=cosmo-pack cosmo-build cosmo-color cosmo-benchmark pack-color #match-color # cosmo-assemble
+PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp  reduce_color.hpp
+BINARIES= cosmo-pack bubbles_matrix bubbles
 
-KMC_OBJS=../KMC/kmc_api/kmc_file.o ../KMC/kmc_api/kmer_api.o ../KMC/kmc_api/mmer.o
+KMC_OBJS= 3rd_party_src/KMC/kmc_api/kmc_file.o 3rd_party_src/KMC/kmc_api/kmer_api.o 3rd_party_src/KMC/kmc_api/mmer.o
 
 default: all
 
@@ -69,23 +69,12 @@ io.o: io.hpp io.cpp debug.h dummies.hpp kmer.hpp
 cosmo-pack: cosmo-pack.cpp $(PACK_REQS)
 		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
 
-cosmo-build: cosmo-build.cpp $(BUILD_REQS)
+bubbles_matrix: bubbles_matrix.cpp $(PACK_REQS)
+		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS)
+
+bubbles: bubbles.cpp $(PACK_REQS)
 		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
 
-cosmo-color: cosmo-color.cpp $(BUILD_REQS)
-		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
-
-pack-color: pack-color.cpp $(BUILD_REQS)
-		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
-
-#match-color: match-color.cpp $(BUILD_REQS)
-#		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(DEP_FLAGS) 
-
-#cosmo-assemble: cosmo-assemble.cpp $(ASSEM_REQS) wt_algorithm.hpp debruijn_hypergraph.hpp
-#		$(CXX) $(CPP_FLAGS) -o $@ $< $(DEP_FLAGS) 
-
-cosmo-benchmark: cosmo-benchmark.cpp $(ASSEM_REQS) wt_algorithm.hpp debruijn_hypergraph.hpp
-		$(CXX) $(CPP_FLAGS) -o $@ $< $(DEP_FLAGS) 
 
 all: $(BINARIES)
 
