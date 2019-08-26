@@ -41,11 +41,11 @@ struct parameters {
 parameters parse_arguments(int argc, char **argv) {
   parameters params;
   TCLAP::CmdLine cmd(" ");
-  TCLAP::ValueArg<size_t> k_value("k", "kmer_length", "Length of edges (node is k-1)", false, 32, "k value", cmd);
-  TCLAP::ValueArg<size_t> num_reads("n", "num_reads", "number of the reads", false, 0, "number of reads", cmd);
-  TCLAP::ValueArg<size_t> len_br("b", "length_of_branches", "length of output sequences", false, 1000, "length of output sequences", cmd);
-  TCLAP::ValueArg<size_t> num_br("u", "number_of_branches", "number of output sequences", false, 100, "number of output sequences", cmd);
-  TCLAP::ValueArg<size_t> cov ("c", "coverage", "minimum coverage of the reads", false, 0, "minimum coverage", cmd);
+  TCLAP::ValueArg<size_t> k_value("k", "kmer_length", "Length of edges (node is k-1)", true, 32 , "k value", cmd);
+  TCLAP::ValueArg<size_t> num_reads("n", "num_reads", "number of the reads", true, 0,"number of reads", cmd);
+  TCLAP::ValueArg<size_t> len_br("b", "length_of_branches", "length of output sequences", true, 1000, "length of output sequences", cmd);
+  TCLAP::ValueArg<size_t> num_br("u", "number_of_branches", "number of output sequences", true, 2, "number of output sequences", cmd);
+  TCLAP::ValueArg<size_t> cov ("c", "coverage", "minimum coverage of the reads", true, 0, "minimum coverage", cmd);
 
   cmd.parse( argc, argv );
   params.k = k_value.getValue();
@@ -62,7 +62,7 @@ std::map<string,size_t> index_maker(){
   ifstream f ("pair" , ifstream::in);
   std::map<string,size_t> pairs;
   string s;
-  size_t index=0;
+  size_t index = 0;
   while(std::getline(f,s)){
     std::locale loc;
     string ss="";
@@ -137,7 +137,7 @@ bool Intersection (vector<unsigned long long int> &active_color , vector<unsigne
 }
 
 
-string back(size_t k, debruijn_graph<> &dbg, size_t i, sd_vector<> &b, size_t number_of_subreads, std::map<string,size_t>& pairs, size_t overlap){
+string back(size_t k, debruijn_graph<> &dbg, size_t i, sd_vector<> &b, size_t number_of_subreads, std::map<string,size_t>& pairs, size_t max_branch_length, size_t overlap){
   bit_vector visited_cycle = bit_vector(dbg.num_nodes(), 0);
   size_t poss = dbg.backward(i);
   char base = dbg.node_label(i)[k-2];
@@ -146,7 +146,7 @@ string back(size_t k, debruijn_graph<> &dbg, size_t i, sd_vector<> &b, size_t nu
   string prefix="";
   prefix.insert(0, 1, dbg.node_label(dbg.backward(i))[0]);
 
-  while(dbg.indegree(poss) != 0 && !visited_cycle[poss]){
+  while(dbg.indegree(poss) != 0 && !visited_cycle[poss] && prefix.size() < max_branch_length){
     visited_cycle[poss] = 1;
     if (dbg.node_label(dbg.backward(poss))[0]=='$') break;
     char base2 = dbg.node_label(poss)[k-2];
@@ -180,7 +180,7 @@ void SNPCall (size_t k, size_t i,  debruijn_graph<>& dbg, sd_vector<>& b, size_t
     visited[i] = 1;
     visited_bulge[i] = 1;
     size_t branch_num = -1;
-    vector<std::string> branch_labels;
+    vector<string> branch_labels;
     vector<char> var_base;
 
 
@@ -217,23 +217,25 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
       if (visited[pos] && it != FoundBulge.end()) {
         pos = it -> second.first ;
         left_flank_embed = branch_labels[branch_num];
-        size_t num_copy = 0;
+
         for (vector<string>::iterator v = (it->second.second).begin(); v!= (it->second.second).end(); v++){
-            if (num_copy < 2){
-                num_copy ++;
+
+
                 branch_labels[branch_num] += *v;
                 if (v == (it->second.second).end()-1) break;
                 branch_labels.push_back(branch);
                 branch_num++;
                 branch_labels[branch_num] = left_flank_embed;
-              }
+
+
+
             }
         visited_cycle[pos] = 1;
         if (visited_bulge[pos]){
           bulge = true;
           end_node = pos;
         }
-        visited_bulge[pos] =1;
+        visited_bulge[pos] = 1;
         if (dbg.outdegree(pos) == 0) break;
       }
 
@@ -272,14 +274,18 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
       for (size_t i = 0; i < var_base.size(); ++i) cout<<var_base[i];
       cout << "\n\n";
       cout << "Start node: " << dbg.node_label(i) << "\n";
-      string prefix = back(k, dbg, i, b, number_of_subreads, pairs, overlap);
+      string prefix = back(k, dbg, i, b, number_of_subreads, pairs,max_branch_length, overlap);
       size_t index = prefix.size() + k;
+      char var;
+
       for (size_t j = 0; j < branch_labels.size(); ++j){
-        if (branch_labels[j].size() < k) continue;
-        cout<< "Branch: "<<branch_labels[j]<<endl;
-        variations<<">"<<bulge_count<<"."<<j<<"."<<index<<".";
-        for (size_t i = 0; i < var_base.size(); ++i) variations<<var_base[i];
-        variations<<"\n"<< prefix<<dbg.node_label(i)<<branch_labels[j] << "\n";
+          if (branch_labels[j].size() < k) continue;
+          if (max_branch_num == 2 && branch_labels[j][0] == var) continue;
+            cout<< "Branch: "<<branch_labels[j]<<endl;
+            variations<<">"<<bulge_count<<"."<<j<<"."<<index<<".";
+            for (size_t i = 0; i < var_base.size(); ++i) variations<<var_base[i];
+              variations<<"\n"<< prefix<<dbg.node_label(i)<<branch_labels[j] << "\n";
+              var = branch_labels[j][0];
       }
 
     }
