@@ -31,7 +31,7 @@ static char base[] = {'?','A','C','G','T'};
 
 struct parameters {
   size_t k = 0;
-  size_t n = 0;
+  //size_t n = 0;
   size_t b = 0;
   size_t u = 0;
   size_t c = 0;
@@ -42,14 +42,14 @@ parameters parse_arguments(int argc, char **argv) {
   parameters params;
   TCLAP::CmdLine cmd(" ");
   TCLAP::ValueArg<size_t> k_value("k", "kmer_length", "Length of edges (node is k-1)", true, 32 , "k value", cmd);
-  TCLAP::ValueArg<size_t> num_reads("n", "num_reads", "number of the reads", true, 0,"number of reads", cmd);
+  //TCLAP::ValueArg<size_t> num_reads("n", "num_reads", "number of the reads", true, 0,"number of reads", cmd);
   TCLAP::ValueArg<size_t> len_br("b", "length_of_branches", "length of output sequences", true, 1000, "length of output sequences", cmd);
   TCLAP::ValueArg<size_t> num_br("u", "number_of_branches", "number of output sequences", true, 2, "number of output sequences", cmd);
   TCLAP::ValueArg<size_t> cov ("c", "coverage", "minimum coverage of the reads", true, 0, "minimum coverage", cmd);
 
   cmd.parse( argc, argv );
   params.k = k_value.getValue();
-  params.n = num_reads.getValue();
+  //params.n = num_reads.getValue();
   params.b = len_br.getValue();
   params.u = num_br.getValue();
   params.c = cov.getValue();
@@ -60,18 +60,38 @@ parameters parse_arguments(int argc, char **argv) {
 
 std::map<string,size_t> index_maker(){
   ifstream f ("pair" , ifstream::in);
-  std::map<string,size_t> pairs;
+  map<string,size_t> pairs;
   string s;
   size_t index = 0;
   while(std::getline(f,s)){
     std::locale loc;
     string ss="";
-    for (std::string::size_type i=0; i< s.length(); ++i)
+    for (std::string::size_type i = 0; i < s.length(); ++i)
       ss += std::toupper(s[i],loc);
       pairs.insert(std::pair<string,size_t>(ss,index++));
     }
     return pairs;
   }
+
+  vector<pair<string,size_t>> repeats_maker(){
+    ifstream f ("repeats" , ifstream::in);
+    vector<pair<string,size_t>> cycles;
+    string s;
+
+    while(std::getline(f,s)){
+      std::locale loc;
+      string ss="";
+      for (std::string::size_type i = 0; i < s.length(); ++i)
+        ss += s[i];
+        size_t len = ss.find(" ");
+	      string kmer = ss.substr(0, len);
+        string repeat = ss.substr(len+1,len+2);
+	      cycles.push_back(make_pair(kmer,stoi(repeat)));
+
+      }
+      return (cycles);
+
+    }
 
   void find_incomming_ougoing_degree_noposition(debruijn_graph<> &dbg){
   size_t  in2 = 0, in3 = 0, in4 = 0, out2 = 0, out3 = 0, out4 = 0;
@@ -172,9 +192,8 @@ size_t bulge_count = 0;
 
 
 void SNPCall (size_t k, size_t i,  debruijn_graph<>& dbg, sd_vector<>& b, size_t number_of_subreads,
-  map<string,size_t>& pairs, ofstream &variations, bit_vector &visited, size_t max_branch_length, size_t max_branch_num, size_t overlap){
-    bit_vector visited_cycle = bit_vector(dbg.num_nodes(), 0);
-    visited_cycle[i] = 1;
+  map<string,size_t>& pairs, ofstream &variations, bit_vector &visited, size_t max_branch_length, size_t max_branch_num, size_t overlap, vector<pair<string,size_t>> cycles){
+
     bit_vector visited_bulge = bit_vector(dbg.num_nodes(), 0);
     size_t end_node;
     visited[i] = 1;
@@ -191,6 +210,8 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
   ssize_t edge = dbg.outgoing_edge(i, x);
   if (edge == -1) continue;
   branch_num++;
+  bit_vector visited_cycle = bit_vector(dbg.num_nodes(), 0);
+  visited_cycle[i] = 1;
   string branch = "";
   branch_labels.push_back(branch);
   var_base.push_back(base[x]);
@@ -204,12 +225,15 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
 
   bool bulge = false;
   size_t c = 0;
-  while ( c < max_branch_num && dbg.outdegree(pos) != 0 && branch_labels[branch_num].size() < max_branch_length && !visited_cycle[pos]) {
+  bool firstNodeCycle = true;
+  vector<size_t> end_cycles;
+  bool cycleFine = false;
+  size_t check;
+  while ( c < max_branch_num && dbg.outdegree(pos) != 0 && branch_labels[branch_num].size() < max_branch_length ) {
       if (visited_bulge[pos]){
       bulge = true;
       end_node = pos;
       }
-
 
     if (dbg.outdegree(pos) > 1 ) {
       map<size_t, pair<size_t,vector<string>>>::iterator it = FoundBulge.find(pos);
@@ -230,18 +254,17 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
 
 
             }
-        visited_cycle[pos] = 1;
         if (visited_bulge[pos]){
           bulge = true;
           end_node = pos;
         }
         visited_bulge[pos] = 1;
+
         if (dbg.outdegree(pos) == 0) break;
       }
 
-      if (!visited[pos]) {  SNPCall (k, pos, dbg, b, number_of_subreads, pairs, variations, visited, max_branch_length, max_branch_num, overlap);}
+      if (!visited[pos]) {  SNPCall (k, pos, dbg, b, number_of_subreads, pairs, variations, visited, max_branch_length, max_branch_num, overlap, cycles);}
     }
-
     vector<unsigned long long int> temp;
     size_t next_edge = 0;
     string kmer2;
@@ -251,6 +274,26 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
           kmer2 = dbg.node_label(pos)+base[x2];
           temp = Coherency(kmer2, b, number_of_subreads, pairs);
           if (temp.empty())  continue;
+
+          if (visited_cycle[pos]){
+            if (firstNodeCycle){
+
+              for (size_t i = 0; i < cycles.size(); i++){
+                if (cycles[i].first == dbg.node_label(pos)){
+                  end_cycles.push_back(cycles[i].second);
+                }
+              }
+            if (end_cycles.empty() ) {c+= 1; break;}
+                firstNodeCycle = false; }
+
+            for (size_t i = 0; i < end_cycles.size(); i++){
+
+              if ( find(temp.begin(), temp.end(), end_cycles[i]) != temp.end() ) {cycleFine = true; break;}}
+              if (!cycleFine){
+                c+= 1;  end_cycles.clear(); firstNodeCycle = true; break;}
+            }
+            cycleFine = false;
+          visited_cycle[pos]=1;
           map<string,size_t>::iterator finddd = pairs.find(kmer2);
           if (Intersection (active_color, temp, overlap)){
               visited_bulge[pos] = 1;
@@ -296,6 +339,7 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
 
 void SNP (size_t k, debruijn_graph<> &dbg, sd_vector<>& b, size_t number_of_subreads, map<string,size_t> &pairs, size_t max_branch_length,
   size_t max_branch_num, size_t overlap){
+  vector<pair<string,size_t>> cycles = repeats_maker();
   cout<<"Beginning of SNP calling ..."<<endl;
   cout<<"========================="<<endl;
   bit_vector visited = bit_vector(dbg.num_nodes(), 0);
@@ -304,7 +348,7 @@ void SNP (size_t k, debruijn_graph<> &dbg, sd_vector<>& b, size_t number_of_subr
   for (size_t i = 0; i < dbg.num_nodes(); i++) {
      if ( dbg.outdegree(i) > 1 && !visited[i]){
          if (i % 10000 == 0) cout<<i*100/dbg.num_nodes()<<" % of graph is processed"<<endl;
-         SNPCall(k, i, dbg, b, number_of_subreads, pairs, variations , visited, max_branch_length, max_branch_num, overlap);
+         SNPCall(k, i, dbg, b, number_of_subreads, pairs, variations , visited, max_branch_length, max_branch_num, overlap, cycles);
        }
      }
     cout<<"100% of graph is processed"<<endl;
@@ -322,13 +366,17 @@ int main(int argc, char *argv[]){
 
   auto params = parse_arguments(argc, argv);
   size_t k = params.k;
-  size_t number_of_subreads = params.n;
+  //size_t number_of_subreads = params.n;
   size_t max_branch_length = params.b;
   size_t max_branch_num = params.u;
   size_t overlap = params.c;
 
 
-
+  ifstream f;
+  f.open("subreadInfo");
+  string s;
+  getline(f,s);
+  size_t number_of_subreads = stoi(s);
   ifstream input("filtered_kmc2_list.packed", ios::in|ios::binary|ios::ate);
   debruijn_graph<> dbg = debruijn_graph<>::load_from_packed_edges(input, "$ACGT"/*, &minus_positions*/);
   input.close();
@@ -337,7 +385,11 @@ int main(int argc, char *argv[]){
   std::map<string,size_t> pairs = index_maker();
   sdsl::sd_vector<> b;
   sdsl::load_from_file(b,"output_matrix");
+  cerr << "Total size of matrix: "<<size_in_mega_bytes(b) <<" Mb"<<endl;
   cerr<<"number of reads: "<<number_of_subreads<<endl;
+
+
+
   //find_incomming_ougoing_degree_noposition(dbg);
   SNP(k, dbg,b,number_of_subreads,pairs, max_branch_length, max_branch_num, overlap);
 }
