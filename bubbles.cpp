@@ -228,7 +228,6 @@ for (size_t x = 1; x < dbg.sigma + 1; x++) {
   bool firstNodeCycle = true;
   vector<size_t> end_cycles;
   bool cycleFine = false;
-  size_t check;
   while ( c < max_branch_num && dbg.outdegree(pos) != 0 && branch_labels[branch_num].size() < max_branch_length ) {
       if (visited_bulge[pos]){
       bulge = true;
