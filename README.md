@@ -37,7 +37,7 @@ ls -1 --color=no *.fastq |xargs -l -i echo "{}.kmc.sorted" > kmers_list
 
 #SNP calling
 #recommended value for -u is 2. Using -u 1, LueVari will output all possible branchings, which is useful for gene retrieving but may require more running time.
-./bubbles -c <minimum coverage> -u <number of output sequences> -b <max length of output sequences> -n <number of reads> -k <k value>
+./bubbles -c <minimum coverage> -u <number of output sequences> -b <max length of output sequences>  -k <k value>
 
 #For trying a test, see run.sh in folder test.
 ```
