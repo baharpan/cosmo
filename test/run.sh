@@ -12,4 +12,4 @@ n_seqs="$((${file_lines}/4))"
 
 numactl --interleave=all  ../cosmo-pack -k filtered_kmc2_list
 /usr/bin/time -v ../bubbles_matrix -n $n_seqs -k 32 -i test.fastq
-/usr/bin/time -v ../bubbles -c 2 -u 2 -b 1000 -n $n_seqs -k 32 > output
+/usr/bin/time -v ../bubbles -c 3 -u 2 -b 1000  -k 32 > output
