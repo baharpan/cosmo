@@ -9,7 +9,7 @@ VARI and its all Prerequisites
 ### Installing
 ```
 #Fetch software and setup directories
-git clone https://github.com/cosmo-team/cosmo
+git clone https://github.com/baharpan/cosmo
 cd cosmo
 git checkout LueVari
 Follow all steps listed in Building notes of VARI (https://github.com/cosmo-team/cosmo/tree/VARI#building-notes)
