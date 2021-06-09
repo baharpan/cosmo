@@ -14,7 +14,7 @@ BOOST_FLAGS= -lboost_system -lboost_filesystem
 DEP_FLAGS=$(INC_PATH) $(LIB_PATH) $(BOOST_FLAGS) -isystem $(KMC_PATH)  -lsdsl -fopenmp
 DEBUG_FLAGS=-pg -gstabs
 NDEBUG_FLAGS= -DNDEBUG
-OPT_FLAGS= -O3 -mmmx -msse -msse2 -msse3 -msse4 -msse4.2 
+OPT_FLAGS= -O3 -mmmx -msse -msse2 -msse3 -msse4 -msse4.2
 NOPT_FLAGS=-O0
 NUM_COLS=64
 # Using Semantic Versioning: http://semver.org/
@@ -49,13 +49,10 @@ ifeq ($(varord),1)
 CPP_FLAGS+=-DVAR_ORDER
 endif
 
-BUILD_REQS=debruijn_graph.hpp io.hpp io.o debug.h 
-COLOR_REQS=colored_debruijn_graph.hpp io.hpp io.o debug.h 
-ASSEM_REQS=debruijn_graph.hpp algorithm.hpp utility.hpp kmer.hpp uint128_t.hpp
-PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp  reduce_color.hpp
-BINARIES= cosmo-pack bubbles_matrix bubbles
+PACK_REQS=lut.hpp debug.h io.hpp io.o sort.hpp kmer.hpp dummies.hpp
+BINARIES=cosmo-pack bubbles_matrix bubbles
 
-KMC_OBJS= 3rd_party_src/KMC/kmc_api/kmc_file.o 3rd_party_src/KMC/kmc_api/kmer_api.o 3rd_party_src/KMC/kmc_api/mmer.o
+KMC_OBJS= $(KMC_PATH)/kmc_api/kmc_file.o $(KMC_PATH)/kmc_api/kmer_api.o $(KMC_PATH)/kmc_api/mmer.o
 
 default: all
 
@@ -63,17 +60,17 @@ lut.hpp: make_lut.py
 		python make_lut.py > lut.hpp
 
 io.o: io.hpp io.cpp debug.h dummies.hpp kmer.hpp
-		$(CXX) $(CPP_FLAGS) -c io.cpp  $(DEP_FLAGS) 
+		$(CXX) $(CPP_FLAGS) -c io.cpp $(DEP_FLAGS)
 
 # TODO: Roll these all into one... "cosmo"
 cosmo-pack: cosmo-pack.cpp $(PACK_REQS)
-		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
-
-bubbles_matrix: bubbles_matrix.cpp $(PACK_REQS)
 		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS)
 
+bubbles_matrix: bubbles_matrix.cpp $(PACK_REQS)
+		$(CXX) $(CPP_FLAGS) -o $@ $< $(DEP_FLAGS)
+
 bubbles: bubbles.cpp $(PACK_REQS)
-		$(CXX) $(CPP_FLAGS) -o $@ $< io.o $(KMC_OBJS) $(DEP_FLAGS) 
+		$(CXX) $(CPP_FLAGS) -o $@ $< $(DEP_FLAGS)
 
 
 all: $(BINARIES)
